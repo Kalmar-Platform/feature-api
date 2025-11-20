@@ -1,0 +1,66 @@
+# Test profile configuration
+spring:
+  datasource:
+    url: jdbc:h2:mem:user_access_test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+#    subscription:
+#      url: jdbc:h2:mem:subscription_test
+#      username: sa
+#      password:
+#      driver-class-name: org.h2.Driver
+    useraccess:
+      url: jdbc:h2:mem:user_access_test
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+  
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://test-issuer.example.com
+          issuer: https://test-issuer.example.com
+          audience: test-audience
+          visma-connect-jose-type: JWT
+          jwk-set-uri: https://test-issuer.example.com/.well-known/jwks
+      client:
+        provider:
+          visma-connect:
+            token-uri: https://test-connect.example.com/oauth/token
+            authorization-uri: https://test-connect.example.com/oauth/authorize
+
+logging:
+  level:
+    com.visma.kalmar.api: DEBUG
+    org.springframework.security: DEBUG
+
+# Override database config for tests
+app:
+  database:
+#    subscription:
+#      enabled: true
+    useraccess:
+      enabled: true
+
+# Visma Connect test configuration
+connect:
+  public-endpoint: https://test-connect.example.com/api
+  database:
+    hibernate:
+      ddl-auto: create-drop
+      dialect: org.hibernate.dialect.H2Dialect

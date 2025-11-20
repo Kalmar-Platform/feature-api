@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>application</artifactId>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>com.visma.kalmar.api</groupId>
+        <artifactId>useraccess-api</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <configuration>
+                        <!-- Jib from image must be correlated with Java version used for compilation. -->
+                        <!-- See maven-compiler-plugin configuration from ../pom.xml -->
+                        <from>
+                            <image>registry://public.ecr.aws/docker/library/eclipse-temurin:21-jre</image>
+                        </from>
+                        <container>
+                            <ports>
+                                <port>8080</port>
+                            </ports>
+                            <labels>
+                                <creation-date>${maven.build.timestamp}</creation-date>
+                                <version>${project.version}</version>
+                            </labels>
+                            
+                        </container>
+                        <to>
+                            <image>useraccess-api</image>
+                        </to>
+                    </configuration>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <version>${jib.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- We ignore the Spring Boot Application. -->
+                        <exclude>com/visma/odp/api/accessmanagement/AccessManagementApiApplication.*</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <id>pre-test</id>
+                        <phase>process-test-classes</phase>
+                    </execution>
+                    <execution>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <id>report</id>
+                        <phase>test</phase>
+                    </execution>
+                    <execution>
+                        <goals>
+                            <goal>report-integration</goal>
+                        </goals>
+                        <id>report-integration</id>
+                        <phase>test</phase>
+                    </execution>
+                </executions>
+                <groupId>org.jacoco</groupId>
+                <version>${jacoco.version}</version>
+            </plugin>
+            <plugin>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <version>${sonar.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+    <modules>
+        <module>entities</module>
+        <module>usecases</module>
+        <module>interface-adapters</module>
+        <module>external-interfaces</module>
+    </modules>
+
+    <properties>
+        <jib.version>3.4.0</jib.version>
+        <aws.public.ecr.temurin.java.image>registry://public.ecr.aws/docker/library/eclipse-temurin:21-jre
+        </aws.public.ecr.temurin.java.image>
+        <spring-boot.version>3.5.6</spring-boot.version>
+        <spring.security.version>6.5.5</spring.security.version>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <mysql.connector.version>8.3.0</mysql.connector.version>
+        <junit.version>5.10.1</junit.version>
+        <mockito.version>5.8.0</mockito.version>
+        <testcontainers.version>1.19.3</testcontainers.version>
+        <springdoc.version>2.8.1</springdoc.version>
+        <lombok.version>1.18.30</lombok.version>
+        <aws-java-sdk-s3.version>1.12.568</aws-java-sdk-s3.version>
+        <jacoco.version>0.8.10</jacoco.version>
+        <jacoco.ut.file>
+            ${user.dir}/application/external-interfaces/jacoco-aggregator/target/site/jacoco-aggregate/jacoco.xml
+        </jacoco.ut.file>
+        <sonar.version>3.9.1.2184</sonar.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${jacoco.ut.file}</sonar.coverage.jacoco.xmlReportPaths>
+        <okhttp3.okhhtp.version>4.11.0</okhttp3.okhhtp.version>
+        <okhttp3.mockwebswerver.version>4.11.0</okhttp3.mockwebswerver.version>
+        <com.google.guava.guava.version>33.0.0-jre</com.google.guava.guava.version>
+    </properties>
+
+</project>

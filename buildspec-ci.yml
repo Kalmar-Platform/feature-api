@@ -1,0 +1,65 @@
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    LC_ALL: C.UTF-8
+    LANG: en_US.UTF-8
+    LANGUAGE: en_US.UTF-8
+
+phases:
+  install:
+    commands:
+    - apt update
+    - apt install -y git
+    # apt install -y awscli started to fail, so we switched to using pip3 to install the awscli instead
+    - apt install -y python3-pip
+    - pip3 install awscli --break-system-packages
+    #- apt install -y awscli
+    - apt install -y ca-certificates curl gnupg lsb-release
+    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - apt update
+    - apt install -y docker-ce docker-ce-cli containerd.io
+  pre_build:
+    commands:
+    - java -version
+    - aws --version
+    - echo "Starting CI build on $(date)"
+  build:
+    commands:
+    - echo "UserAccess API CI"
+    - aws sts get-caller-identity
+    - pwd
+    - whoami
+    - chmod +x mvnw
+    - echo "Running tests and building application..."
+    - ./mvnw clean install
+    # Optional: SonarQube integration (uncomment if needed)
+    # - |
+    #   if [ -n "$SONAR_HOST_URL" ] && [ -n "$SONAR_LOGIN" ]; then
+    #     echo "Running SonarQube analysis..."
+    #     ./mvnw sonar:sonar -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN
+    #   else
+    #     echo "SonarQube not configured, skipping code quality analysis"
+    #   fi
+
+  post_build:
+    commands:
+    - echo "CI build completed on $(date)"
+    - echo "All tests passed and build successful"
+
+# Optional: Test reports (uncomment if you want test result reporting)
+# reports:
+#   surefire-reports:
+#     files:
+#       - '**/*'
+#     base-directory: 'target/surefire-reports'
+#   jacoco-reports:
+#     files:
+#       - '**/*'
+#     base-directory: 'target/site/jacoco'
+
+cache:
+  paths:
+  - /root/.m2/

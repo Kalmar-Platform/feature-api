@@ -1,0 +1,86 @@
+spring:
+  application:
+    name: useraccess-api
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # Common configuration for all profiles
+  datasource:
+    username: ${USER_ACCESS_DB_USERNAME}
+    password: ${USER_ACCESS_DB_PASSWORD}
+#    username: ${USER_ACCESS_DB_USERNAME:useraccess_user}
+#    password: ${USER_ACCESS_DB_PASSWORD:useraccess_pass}
+#    username: ${USER_ACCESS_DB_USERNAME:DB_USERNAME}
+#    password: ${USER_ACCESS_DB_PASSWORD:DB_PASSWORD}
+    driver-class-name: software.aws.rds.jdbc.mysql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      leak-detection-threshold: 60000
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          visma-connect-jose-type: at+JWT
+      client:
+        registration:
+          visma-connect:
+            client-id: ${CONNECT_CLIENT_ID}
+            client-secret: ${CONNECT_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,httptrace
+  endpoint:
+    health:
+      show-details: always
+
+# OpenAPI Configuration
+springdoc:
+  packages-to-scan: com.visma.kalmar.api
+  swagger-ui:
+    disable-swagger-default-url: true
+    operationsSorter: alpha
+    tagsSorter: alpha
+
+server:
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    
+security-public-request-paths:
+  get: /actuator/health, /actuator/prometheus, /actuator/httptrace, /v3/api-docs/**, /swagger-ui.html, /swagger-ui/** 
+  post: /api/v1/openweb/register # Public endpoint for customer registration
+
+
+
+
+logging:
+  pattern:
+    level: trace_id=%mdc{trace_id} span_id=%mdc{span_id} trace_flags=%mdc{trace_flags} %5p
+  level:
+    io:
+      swagger:
+        models:
+          parameters:
+            AbstractSerializableParameter: error
+    com:
+      visma: debug
+
+aws:
+  s3:
+    region: eu-north-1

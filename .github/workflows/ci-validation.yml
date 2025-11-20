@@ -1,0 +1,179 @@
+name: CI - Validation Checks
+
+on:
+  pull_request:
+    branches:
+    - main
+    - develop
+    types: [ opened, synchronize, reopened, edited ]
+  push:
+    branches:
+    - main
+    - develop
+
+jobs:
+  jira-validation:
+    name: Jira Case Validation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Check PR title for Jira case
+      if: github.event_name == 'pull_request'
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
+      run: |
+        echo "PR Title: $PR_TITLE"
+
+        # Check if PR title contains PHXCORE-{digits} pattern (case-insensitive)
+        title_upper=$(echo "$PR_TITLE" | tr '[:lower:]' '[:upper:]')
+        if [[ ! "$title_upper" =~ PHXCORE-[0-9]+ ]]; then
+          echo "❌ PR title must contain Jira case number in format: PHXCORE-XX"
+          echo "Examples:"
+          echo "  - feat: PHXCORE-66 add new feature"
+          echo "  - fix: PHXCORE-123 resolve issue"
+          echo "  - chore: PHXCORE-456 update dependencies"
+          echo "Current title: $PR_TITLE"
+          exit 1
+        else
+          echo "✅ PR title contains valid Jira case number"
+        fi
+
+    - name: Check commit messages for Jira case
+      run: |
+        echo "Checking commit messages for Jira case references..."
+
+        # Get commits in this PR or recent commits for push
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          commits=$(git log --pretty=format:"%s" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+        else
+          commits=$(git log --pretty=format:"%s" -10)
+        fi
+
+        echo "Commits to check:"
+        echo "$commits"
+        echo ""
+
+        invalid_commits=()
+        while IFS= read -r commit; do
+          if [[ -n "$commit" ]]; then
+            commit_upper=$(echo "$commit" | tr '[:lower:]' '[:upper:]')
+            if [[ ! "$commit_upper" =~ PHXCORE-[0-9]+ ]]; then
+              invalid_commits+=("$commit")
+            fi
+          fi
+        done <<< "$commits"
+
+        if [ ${#invalid_commits[@]} -gt 0 ]; then
+          echo "❌ The following commit messages don't contain Jira case numbers:"
+          for commit in "${invalid_commits[@]}"; do
+            echo "  - $commit"
+          done
+          echo ""
+          echo "All commit messages must contain PHXCORE-XX format"
+          exit 1
+        else
+          echo "✅ All commit messages contain valid Jira case numbers"
+        fi
+
+  security-check:
+    name: Security Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for sensitive data in files
+      run: |
+        echo "Checking for potential sensitive data..."
+
+        sensitive_patterns=(
+          "password.*="
+          "secret.*="
+          "token.*="
+          "key.*="
+          "aws_access_key"
+          "aws_secret_key"
+          "client_secret"
+          "private_key"
+          "api_key"
+          "jdbc.*password"
+        )
+
+        found_sensitive=false
+        excluded_files=(
+          "*.md"
+          "*.yml"
+          "*.yaml"
+          "*instructions*"
+          "*example*"
+          "*template*"
+          "*Test.java"
+        )
+
+        # Create find exclusion parameters
+        find_excludes=""
+        for pattern in "${excluded_files[@]}"; do
+          find_excludes="$find_excludes -not -name '$pattern'"
+        done
+
+        for pattern in "${sensitive_patterns[@]}"; do
+          # Search in Java files, properties files, but exclude documentation
+          matches=$(eval "find . -type f \( -name '*.java' -o -name '*.properties' -o -name '*.xml' \) $find_excludes -exec grep -l '$pattern' {} \;" 2>/dev/null || true)
+          
+          if [[ -n "$matches" ]]; then
+            echo "⚠️ Found potential sensitive data pattern '$pattern' in:"
+            echo "$matches"
+            
+            # Show actual matches for review
+            for file in $matches; do
+              echo "  In file $file:"
+              grep -n "$pattern" "$file" | head -3 | sed 's/^/    /'
+            done
+            found_sensitive=true
+            echo ""
+          fi
+        done
+
+        if [[ "$found_sensitive" == "true" ]]; then
+          echo "❌ Please review these matches to ensure no sensitive data is exposed"
+          echo "If these are safe (like examples or templates), add comments to indicate so"
+          exit 1
+        else
+          echo "✅ No obvious sensitive data patterns found"
+        fi
+
+    - name: Scan for secrets with TruffleHog
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+        extra_args: --debug --only-verified
+
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [ jira-validation, security-check ]
+    if: always()
+
+    steps:
+    - name: Check all jobs status
+      run: |
+        echo "=== Validation Summary ==="
+        echo "Jira Validation: ${{ needs.jira-validation.result }}"
+        echo "Security Check: ${{ needs.security-check.result }}"
+        echo ""
+
+        if [[ "${{ needs.jira-validation.result }}" == "success" && 
+              "${{ needs.security-check.result }}" == "success" ]]; then
+          echo "✅ All validation checks passed!"
+        else
+          echo "❌ Some validation checks failed. Please review the job outputs above."
+          exit 1
+        fi

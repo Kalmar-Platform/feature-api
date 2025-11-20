@@ -1,4 +1,4 @@
-# Kalmar: Subscription Management System
+# Kalmar: User Access Management System
 
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/spring%20boot-%236DB33F.svg?style=for-the-badge&logo=springboot&logoColor=white)
@@ -66,6 +66,98 @@ Follow these instructions to set up and run the project on your local machine.
 * **Maven 3.6+**
 * **MySQL 8.0+** running locally or an accessible Aurora MySQL instance for development
 
+### Database Setup
+
+The system requires two separate MySQL databases:
+1.  **UserAccess Database**: Manages user accounts, roles, and permissions. It also serves as the default source for reference data (e.g., `Country`, `Language`).
+2.  **Subscription Database**: Manages customer and subscription data.
+
+To create the required schemas and tables, execute the SQL scripts located in `.github/instructions/data-model.instructions.md`.
+
+### Environment Configuration
+
+The application is deployed across multiple environments, managed via `Spring` Profiles.
+Configuration is managed through `application.yml` files, with sensitive values supplied by environment variables.
+
+Variables specific to a profile are defined in profile-specific files (e.g., `application-dev.yml`).
+
+#### Deployment Environments
+
+| Profile Name | Environment | Purpose                                              |
+| ------------ | ----------- |------------------------------------------------------|
+| `dev`        | Development | Local developer environments,                        |
+| `int`        | Internal    | Internal testing and early-stage feature validation. |
+| `stag`       | Staging     | Pre-production environment for final testing and QA. |
+| `prod`       | Production  | Live customer-facing environment.                    |
+
+#### Environment Variables defined in `application.yml` 
+
+| Variable                   | Description                                                               | Required |
+| -------------------------- | ------------------------------------------------------------------------- | :------: |
+| `SPRING_PROFILES_ACTIVE`   | The active Spring profile (e.g., `dev`, `int`, `stag`, `prod`).           |   Yes    |
+| `SUBSCRIPTION_DB_USERNAME` | Username for the **Subscription** database.                               |   Yes    |
+| `SUBSCRIPTION_DB_PASSWORD` | Password for the **Subscription** database.                               |   Yes    |
+| `USER_ACCESS_DB_USERNAME`  | Username for the **UserAccess** database.                                 |   Yes    |
+| `USER_ACCESS_DB_PASSWORD`  | Password for the **UserAccess** database.                                 |   Yes    |
+| `CONNECT_CLIENT_ID`        | OAuth2 Client ID for Visma Connect APIs.                                  |   Yes    |
+| `CONNECT_CLIENT_SECRET`    | OAuth2 Client Secret for Visma Connect.                                   |   Yes    |
+
+#### Profile-Specific Environment Variables
+
+Non-sensitive variables that differ per environment are defined in profile-specific files (e.g., `application-dev.yml`).
+These are grouped under the following categories:
+* **Visma Connect Resource Server Configuration** defined under `security.oauth2.resourceserver` section
+
+    | Variable   | Description                                                                                                                                                                                                                                           |        Required         |
+    |------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------:|
+    | `issuer`   | The main address for an Authorization Server. <br>Spring Security uses this single URI to automatically discover all the other endpoints it needs to function <br/>It does this by appending `/.well-known/openid-configuration` to the URI provided. |           Yes           | 
+    | `audience` | Used by `Spring Security` to verify the token was issued for this API.                                                                                                                                                                                | For `stag` and `prod`   |
+
+* **Visma Connect Client Configuration** defined under `security.oauth2.client` section
+
+    | Variable         | Description                                                                         |        Required         |
+    |------------------|-------------------------------------------------------------------------------------|:-----------------------:|
+    | `scopes`         | The list of scopes required to call different methods from  the Visma Connect API's |           Yes           |
+    | `token-uri`      | Token endpoint URL for Visma Connect IDP                                            |           Yes           |
+
+* **Visma Connect API Endpoints** defined under `connect` section
+
+    | Variable               | Description                           | Required           |
+    |------------------------|---------------------------------------|:------------------:|
+    | ` public-endpoint`     | URL for the Visma Connect Public API. |        Yes         |
+
+* **Database URLs** defined under `datasource` section
+
+    | Variable                  | Description                                 |        Required         |
+    |---------------------------|---------------------------------------------|:-----------------------:|
+    | `subscription-db-url`     | JDBC URL for the **Subscription** database. |           Yes           |
+    | `user-access-db-url`      | JDBC URL for the **UserAccess** database.   |           Yes           |
+    
+* **Logging Configuration** defined under `logging` section. Used for debugging on local environments. **Do not enable in `stag` or `prod` profiles!** as they generate a lot of logs and may expose sensitive data.
+
+    | Variable                                                    | Description                                                                          |               Required               |
+    |-------------------------------------------------------------|--------------------------------------------------------------------------------------|:------------------------------------:|
+    | `logging.level.sql`                                         | Log all the SQL statements it generated and executed.                                | No, set to `debug` for `dev` profile |
+    | `logging.level.org.hibernate.orm.jdbc.bind`                 | Log all parameter values that are being bound to the placeholders (?) in SQL queries | No, set to `trace` for `dev` profile |
+    | `logging.level.org.springframework.transaction.interceptor` | Log Spring Transaction boundaries (begin, commit, rollback)                          | No, set to `debug` for `dev` profile |
+    | `logging.level.reactor.netty.http.client`                   | Log HTTP client requests and responses made by the application                       | No, set to `debug` for `dev` profile |
+
+#### Access to AWS Services
+
+The AWS region is configured in `application.yaml` under the `aws` section and defaults to `eu-west-1` if not specified.
+
+If you need to connect to AWS services locally, set the following environment variables:
+
+| Variable                | Description                                                           |    Required     |
+|-------------------------|-----------------------------------------------------------------------|:---------------:|
+| `AWS_ACCESS_KEY_ID`     | AWS access key for local development (if connecting to AWS services). |  No             |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key for local development.                                 |  No             |
+    
+These variables are not set in any configure files , but they need to be set in the local environment if AWS services are to be accessed locally. 
+More details on how AWS Credentials work are available on the [AWS Credentials Chain](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials-chain.html) documentation page.
+
+---
+
 ## ⚙️ Building and Running
 
 ### Build the Application
@@ -129,6 +221,3 @@ The current infrastructure is managed with `Terraform`, and the code is availabl
 **Architecture**: Respect the Clean Architecture principles detailed in .github/instructions/clean-architecture.instructions.md.
 
 To contribute, please fork the repository, create a new branch for your feature or bug fix, and submit a pull request.
-
-## 🤖 Use of AI Agents
- Use of AI agents is encouraged.

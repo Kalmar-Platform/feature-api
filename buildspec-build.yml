@@ -1,0 +1,78 @@
+# buildspec-build.yml - For Build project (build and deployment)
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    LC_ALL: C.UTF-8
+    LANG: en_US.UTF-8
+  git-credential-helper: yes
+
+phases:
+  install:
+    commands:
+    - apt update
+    - apt install -y python3-pip
+    - pip3 install awscli --break-system-packages
+    - apt install -y ca-certificates curl gnupg lsb-release
+    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - apt update
+    - apt install -y docker-ce docker-ce-cli containerd.io
+
+  pre_build:
+    commands:
+    - AWS_URI=602259772901.dkr.ecr.eu-north-1.amazonaws.com
+    - REPOSITORY_NAME=useraccess-api
+    - REPOSITORY_URI=$AWS_URI/$REPOSITORY_NAME
+    - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+    - IMAGE_TAG=${COMMIT_HASH:=latest}
+    - aws ecr get-login-password --region eu-north-1| docker login --username AWS --password-stdin $AWS_URI
+    - chmod +x mvnw
+    - printf '{"Repository URI":"%s"}' $REPOSITORY_URI
+    - printf '{"Image Tag":"%s"}' $IMAGE_TAG
+    - echo "Creating version files under api-docs path..."
+    - mkdir -p application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs
+    - echo "$REPOSITORY_URI:$IMAGE_TAG" > application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.txt
+    - echo "Build Date: $(date)" >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.txt
+    - echo "Commit Hash: $COMMIT_HASH" >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.txt
+    - echo "Branch: ${CODEBUILD_WEBHOOK_HEAD_REF:-$CODEBUILD_SOURCE_VERSION}" >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.txt
+    - cat application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.txt
+    - echo "Creating JSON version info..."
+    - echo "{" > application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+    - echo "  \"imageUri\": \"$REPOSITORY_URI:$IMAGE_TAG\"," >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+    - echo "  \"repository\": \"$REPOSITORY_URI\"," >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+    - echo "  \"tag\": \"$IMAGE_TAG\"," >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+    - echo "  \"commitHash\": \"$COMMIT_HASH\"," >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+    - echo "  \"buildDate\": \"$(date -Iseconds)\"," >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+    - echo "  \"branch\": \"${CODEBUILD_WEBHOOK_HEAD_REF:-$CODEBUILD_SOURCE_VERSION}\"" >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+    - echo "}" >> application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+    - cat application/external-interfaces/boot/src/main/resources/META-INF/resources/v3/api-docs/version.json
+
+  build:
+    commands:
+    - echo "UserAccess API BUILD"
+    - aws sts get-caller-identity
+    - pwd
+    - whoami
+    - echo "Building application with Maven..."
+    - ./mvnw clean install
+    - echo "Building and pushing Docker image with Jib..."
+    - ./mvnw compile com.google.cloud.tools:jib-maven-plugin:build -pl application/external-interfaces/boot -Dimage=$REPOSITORY_URI -Djib.to.tags=latest,$IMAGE_TAG
+
+  post_build:
+    commands:
+    - echo "Build completed on $(date)"
+    - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+    - cat imageDetail.json
+    - printf '{"image build and push successful":"%s"}' $REPOSITORY_URI:$IMAGE_TAG
+    - echo "Deploying to Fargate using deployment script..."
+    - python3 codebuild_script/deploy_on_fargate.py $REPOSITORY_URI:$IMAGE_TAG --cluster useraccess-api-test-k-cluster --service useraccess-api-test-k-service --task-family useraccess-api-test-k-family --region eu-north-1
+
+cache:
+  paths:
+  - /root/.m2/
+
+artifacts:
+  files:
+  - imageDetail.json
