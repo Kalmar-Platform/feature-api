@@ -129,3 +129,6 @@ The current infrastructure is managed with `Terraform`, and the code is availabl
 **Architecture**: Respect the Clean Architecture principles detailed in .github/instructions/clean-architecture.instructions.md.
 
 To contribute, please fork the repository, create a new branch for your feature or bug fix, and submit a pull request.
+
+## 🤖 Use of AI Agents
+ Use of AI agents is encouraged.
