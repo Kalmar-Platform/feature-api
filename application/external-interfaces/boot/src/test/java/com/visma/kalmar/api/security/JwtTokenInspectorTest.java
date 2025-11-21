@@ -63,4 +63,40 @@ class JwtTokenInspectorTest {
     var email = jwtTokenInspector.getConnectUserEmail(jwtAuthenticationToken);
     Assertions.assertEquals(CONNECT_USER_EMAIL, email);
   }
+
+  @Test
+  void getConnectUserId_NullSubject_ReturnsNull() {
+    tokenAttributes.put("sub", null);
+
+    var connectUserId = jwtTokenInspector.getConnectUserId(jwtAuthenticationToken);
+
+    Assertions.assertNull(connectUserId);
+  }
+
+  @Test
+  void getConnectUserId_InvalidUuidFormat_ReturnsNull() {
+    tokenAttributes.put("sub", "not-a-valid-uuid");
+
+    var connectUserId = jwtTokenInspector.getConnectUserId(jwtAuthenticationToken);
+
+    Assertions.assertNull(connectUserId);
+  }
+
+  @Test
+  void getConnectUserEmail_NullSubject_ReturnsNull() {
+    tokenAttributes.put("sub", null);
+
+    var email = jwtTokenInspector.getConnectUserEmail(jwtAuthenticationToken);
+
+    Assertions.assertNull(email);
+  }
+
+  @Test
+  void getConnectUserEmail_InvalidUuidFormat_ReturnsNull() {
+    tokenAttributes.put("sub", "invalid-uuid-format");
+
+    var email = jwtTokenInspector.getConnectUserEmail(jwtAuthenticationToken);
+
+    Assertions.assertNull(email);
+  }
 }

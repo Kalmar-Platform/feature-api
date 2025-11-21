@@ -1,5 +1,6 @@
 package com.visma.kalmar.api.user;
 
+import com.visma.kalmar.api.user.dto.UserRequest;
 import com.visma.kalmar.api.user.dto.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +58,65 @@ class UserApiControllerTest {
     }
 
     @Test
+    void createUser_success() {
+        UserRequest userRequest = createUserRequest();
+        UserResponse expectedResponse = createUserResponse();
+        ResponseEntity<UserResponse> expectedEntity = ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse);
+
+        when(userPresenter.getResponse()).thenReturn(expectedEntity);
+
+        ResponseEntity<UserResponse> response = userApiController.createUser(userRequest);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(expectedResponse, response.getBody());
+
+        ArgumentCaptor<UserInputData> inputDataCaptor = ArgumentCaptor.forClass(UserInputData.class);
+        verify(createUserInputPort, times(1)).createUser(inputDataCaptor.capture(), eq(userPresenter));
+
+        UserInputData capturedInputData = inputDataCaptor.getValue();
+        assertEquals(EMAIL, capturedInputData.email());
+        assertEquals(FIRST_NAME, capturedInputData.firstName());
+        assertEquals(LAST_NAME, capturedInputData.lastName());
+        assertEquals(LANGUAGE_CODE, capturedInputData.languageCode());
+    }
+
+    @Test
+    void updateUser_success() {
+        UserRequest userRequest = createUserRequest();
+        UserResponse expectedResponse = createUserResponse();
+        ResponseEntity<UserResponse> expectedEntity = ResponseEntity.ok(expectedResponse);
+
+        when(userPresenter.getResponse()).thenReturn(expectedEntity);
+
+        ResponseEntity<UserResponse> response = userApiController.updateUser(USER_ID_STRING, userRequest);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedResponse, response.getBody());
+
+        ArgumentCaptor<UserInputData> inputDataCaptor = ArgumentCaptor.forClass(UserInputData.class);
+        verify(updateUserInputPort, times(1)).updateUser(inputDataCaptor.capture(), eq(userPresenter));
+
+        UserInputData capturedInputData = inputDataCaptor.getValue();
+        assertEquals(USER_ID_STRING, capturedInputData.userId());
+        assertEquals(EMAIL, capturedInputData.email());
+        assertEquals(FIRST_NAME, capturedInputData.firstName());
+        assertEquals(LAST_NAME, capturedInputData.lastName());
+        assertEquals(LANGUAGE_CODE, capturedInputData.languageCode());
+    }
+
+    @Test
+    void deleteUser_success() {
+        ResponseEntity<Void> response = userApiController.deleteUser(USER_ID_STRING);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+        verify(deleteUserInputPort, times(1)).deleteUser(eq(USER_ID));
+    }
+
+    @Test
     void getUserById_success() {
         UserResponse expectedResponse = createUserResponse();
         ResponseEntity<UserResponse> expectedEntity = ResponseEntity.ok(expectedResponse);
@@ -69,9 +129,7 @@ class UserApiControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
 
-        ArgumentCaptor<UUID> userIdCaptor = ArgumentCaptor.forClass(UUID.class);
-        verify(getUserInputPort).getUserById(userIdCaptor.capture(), eq(userPresenter));
-        assertEquals(USER_ID, userIdCaptor.getValue());
+        verify(getUserInputPort, times(1)).getUserById(eq(USER_ID), eq(userPresenter));
     }
 
     @Test
@@ -87,7 +145,62 @@ class UserApiControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
 
-        verify(getUserInputPort).getUserByEmail(eq(EMAIL), eq(userPresenter));
+        verify(getUserInputPort, times(1)).getUserByEmail(eq(EMAIL), eq(userPresenter));
+    }
+
+    @Test
+    void createUser_callsPresenterToGetResponse() {
+        UserRequest userRequest = createUserRequest();
+        ResponseEntity<UserResponse> expectedEntity = ResponseEntity.status(HttpStatus.CREATED).body(new UserResponse());
+
+        when(userPresenter.getResponse()).thenReturn(expectedEntity);
+
+        userApiController.createUser(userRequest);
+
+        verify(userPresenter, times(1)).getResponse();
+    }
+
+    @Test
+    void updateUser_callsPresenterToGetResponse() {
+        UserRequest userRequest = createUserRequest();
+        ResponseEntity<UserResponse> expectedEntity = ResponseEntity.ok(new UserResponse());
+
+        when(userPresenter.getResponse()).thenReturn(expectedEntity);
+
+        userApiController.updateUser(USER_ID_STRING, userRequest);
+
+        verify(userPresenter, times(1)).getResponse();
+    }
+
+    @Test
+    void getUserById_callsPresenterToGetResponse() {
+        ResponseEntity<UserResponse> expectedEntity = ResponseEntity.ok(new UserResponse());
+
+        when(userPresenter.getResponse()).thenReturn(expectedEntity);
+
+        userApiController.getUserById(USER_ID_STRING);
+
+        verify(userPresenter, times(1)).getResponse();
+    }
+
+    @Test
+    void getUserByEmail_callsPresenterToGetResponse() {
+        ResponseEntity<UserResponse> expectedEntity = ResponseEntity.ok(new UserResponse());
+
+        when(userPresenter.getResponse()).thenReturn(expectedEntity);
+
+        userApiController.getUserByEmail(EMAIL);
+
+        verify(userPresenter, times(1)).getResponse();
+    }
+
+    private UserRequest createUserRequest() {
+        UserRequest request = new UserRequest();
+        request.setEmail(EMAIL);
+        request.setFirstName(FIRST_NAME);
+        request.setLastName(LAST_NAME);
+        request.setLanguageCode(LANGUAGE_CODE);
+        return request;
     }
 
     private UserResponse createUserResponse() {
