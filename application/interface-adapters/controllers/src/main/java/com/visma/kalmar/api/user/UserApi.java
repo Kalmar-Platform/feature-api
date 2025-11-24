@@ -8,17 +8,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @Validated
 @Tag(name = "User API", description = "User management operations")
@@ -29,7 +22,7 @@ public interface UserApi {
     @Operation(
             summary = "Create a new user",
             description = "Create a new user with the provided details. The user will be created in the UserAccess database and synchronized with Visma Connect identity provider. " +
-                         "The language code will be converted to a language ID when saving the user, and the user will be synchronized with Visma Connect using the locale format.")
+                    "The language code will be converted to a language ID when saving the user, and the user will be synchronized with Visma Connect using the locale format.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request data or language code not found"),
@@ -43,7 +36,7 @@ public interface UserApi {
     @Operation(
             summary = "Update an existing user",
             description = "Update an existing user with the provided details. The user will be updated in the UserAccess database and synchronized with Visma Connect identity provider. " +
-                         "The language code will be converted to a language ID when saving the user, and the user will be synchronized with Visma Connect using the locale format.")
+                    "The language code will be converted to a language ID when saving the user, and the user will be synchronized with Visma Connect using the locale format.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request data or language code not found"),
@@ -58,7 +51,7 @@ public interface UserApi {
     @Operation(
             summary = "Delete an existing user",
             description = "Delete an existing user by ID. The user will be unlinked from Visma Connect identity provider and removed from the UserAccess database. " +
-                         "If the user is already unlinked from Visma Connect (409 ERROR_USER_UNLINKED_FROM_CLIENT), this is considered a valid response and the deletion will proceed.")
+                    "If the user is already unlinked from Visma Connect (409 ERROR_USER_UNLINKED_FROM_CLIENT), this is considered a valid response and the deletion will proceed.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "User deleted successfully"),
             @ApiResponse(responseCode = "404", description = "User not found"),

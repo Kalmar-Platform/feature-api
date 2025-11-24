@@ -34,7 +34,9 @@ public class User {
 
     @Column(name = "LastName", nullable = false, length = 50)
     private String lastName;
-    @Column @Version private long recordVersion;
+    @Column
+    @Version
+    private long recordVersion;
     @Temporal(TemporalType.TIMESTAMP)
     private Date whenEdited;
 

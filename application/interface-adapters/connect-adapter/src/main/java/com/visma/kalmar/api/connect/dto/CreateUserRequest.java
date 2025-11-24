@@ -12,4 +12,5 @@ public record CreateUserRequest(
         String firstName,
         @JsonProperty("last_name")
         String lastName
-) {}
+) {
+}

@@ -14,7 +14,7 @@ public class InMemoryVismaConnectUserGatewayAdapter implements VismaConnectUserG
     private final Map<UUID, User> users = new ConcurrentHashMap<>();
     private final Map<String, User> usersByEmail = new ConcurrentHashMap<>();
     private final Map<UUID, Boolean> unlinkedUsers = new ConcurrentHashMap<>();
-    
+
     private boolean shouldFailOnCreate = false;
     private boolean shouldFailOnUpdate = false;
     private boolean shouldFailOnUnlink = false;
@@ -25,7 +25,7 @@ public class InMemoryVismaConnectUserGatewayAdapter implements VismaConnectUserG
         if (shouldFailOnCreate) {
             throw new ConnectUserException("Failed to create user in Visma Connect", 500, "ERROR_INTERNAL");
         }
-        
+
         UUID userId = user.idUser() != null ? user.idUser() : UUID.randomUUID();
         User createdUser = new User(
                 userId,
@@ -46,11 +46,11 @@ public class InMemoryVismaConnectUserGatewayAdapter implements VismaConnectUserG
         if (shouldFailOnUpdate) {
             throw new ConnectUserException("Failed to update user in Visma Connect", 500, "ERROR_INTERNAL");
         }
-        
+
         if (!users.containsKey(user.idUser())) {
             throw new ResourceNotFoundException("User", "User not found in Visma Connect with id: " + user.idUser());
         }
-        
+
         users.put(user.idUser(), user);
         usersByEmail.put(user.email(), user);
     }
@@ -60,15 +60,15 @@ public class InMemoryVismaConnectUserGatewayAdapter implements VismaConnectUserG
         if (shouldReturnAlreadyUnlinked) {
             throw new ConnectUserException("ERROR_USER_UNLINKED_FROM_CLIENT", 409, "ERROR_USER_UNLINKED_FROM_CLIENT");
         }
-        
+
         if (shouldFailOnUnlink) {
             throw new ConnectUserException("Failed to unlink user from Visma Connect", 500, "ERROR_INTERNAL");
         }
-        
+
         if (!users.containsKey(userId)) {
             throw new ResourceNotFoundException("User", "User not found in Visma Connect with id: " + userId);
         }
-        
+
         unlinkedUsers.put(userId, true);
     }
 

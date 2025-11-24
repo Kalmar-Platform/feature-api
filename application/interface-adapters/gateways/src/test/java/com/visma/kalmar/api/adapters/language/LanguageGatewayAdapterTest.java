@@ -33,7 +33,7 @@ class LanguageGatewayAdapterTest {
 
     @Test
     void findByCode_existingLanguage_returnsLanguage() {
-        com.visma.useraccess.kalmar.api.language.Language languageEntity = 
+        com.visma.useraccess.kalmar.api.language.Language languageEntity =
                 new com.visma.useraccess.kalmar.api.language.Language();
         languageEntity.setIdLanguage(LANGUAGE_ID);
         languageEntity.setCode(LANGUAGE_CODE);
@@ -62,7 +62,7 @@ class LanguageGatewayAdapterTest {
 
     @Test
     void findById_existingLanguage_returnsLanguage() {
-        com.visma.useraccess.kalmar.api.language.Language languageEntity = 
+        com.visma.useraccess.kalmar.api.language.Language languageEntity =
                 new com.visma.useraccess.kalmar.api.language.Language();
         languageEntity.setIdLanguage(LANGUAGE_ID);
         languageEntity.setCode(LANGUAGE_CODE);

@@ -64,13 +64,15 @@ class CreateUserUseCaseTest {
     @Test
     void createUser_withExistingEmail_throwsResourceAlreadyExistsException() {
         var inputData = UserInputData.forCreate(EMAIL, FIRST_NAME, LAST_NAME, LANGUAGE_CODE);
-        
-        useCase.createUser(inputData, output -> {});
+
+        useCase.createUser(inputData, output -> {
+        });
 
         var duplicateInputData = UserInputData.forCreate(EMAIL, "Jane", "Smith", LANGUAGE_CODE);
 
         var exception = assertThrows(ResourceAlreadyExistsException.class,
-                () -> useCase.createUser(duplicateInputData, output -> {}));
+                () -> useCase.createUser(duplicateInputData, output -> {
+                }));
 
         assertTrue(exception.getMessage().contains("User with email: " + EMAIL + " already exists"));
     }
@@ -81,7 +83,8 @@ class CreateUserUseCaseTest {
         var inputData = UserInputData.forCreate(EMAIL, FIRST_NAME, LAST_NAME, invalidLanguageCode);
 
         assertThrows(ResourceNotFoundException.class,
-                () -> useCase.createUser(inputData, output -> {}));
+                () -> useCase.createUser(inputData, output -> {
+                }));
     }
 
     @Test
@@ -90,7 +93,8 @@ class CreateUserUseCaseTest {
         var inputData = UserInputData.forCreate(EMAIL, FIRST_NAME, LAST_NAME, LANGUAGE_CODE);
 
         assertThrows(ConnectUserException.class,
-                () -> useCase.createUser(inputData, output -> {}));
+                () -> useCase.createUser(inputData, output -> {
+                }));
 
         assertFalse(userGateway.existsByEmail(EMAIL));
     }

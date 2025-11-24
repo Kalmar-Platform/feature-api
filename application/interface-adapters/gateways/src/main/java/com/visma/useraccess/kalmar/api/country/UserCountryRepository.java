@@ -9,6 +9,6 @@ import java.util.UUID;
 @Repository
 public interface UserCountryRepository extends JpaRepository<Country, UUID> {
     Optional<Country> findByCode(String code);
-    
+
     boolean existsByCode(String code);
 }

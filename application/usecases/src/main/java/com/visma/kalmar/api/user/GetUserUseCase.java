@@ -6,7 +6,7 @@ import com.visma.kalmar.api.language.LanguageGateway;
 import java.util.UUID;
 
 public class GetUserUseCase implements GetUserInputPort {
-    
+
     private final UserGateway userGateway;
     private final LanguageGateway languageGateway;
 
@@ -29,7 +29,7 @@ public class GetUserUseCase implements GetUserInputPort {
 
     private UserOutputData buildOutputData(User user) {
         String languageCode = languageGateway.findById(user.idLanguage()).code();
-        
+
         return new UserOutputData(
                 user.idUser().toString(),
                 user.email(),

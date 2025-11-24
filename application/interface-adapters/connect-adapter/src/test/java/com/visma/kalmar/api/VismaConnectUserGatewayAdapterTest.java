@@ -31,370 +31,276 @@ import static org.mockito.Mockito.when;
 
 class VismaConnectUserGatewayAdapterTest {
 
-  private static MockWebServer mockWebServer;
-  private ObjectMapper objectMapper;
+    private static final UUID USER_ID = UUID.fromString("64dd3e56-4c27-4ca2-8c15-528cfbaf6565");
+    private static final UUID LANGUAGE_ID = UUID.fromString("74dd3e56-4c27-4ca2-8c15-528cfbaf6575");
+    private static final String USER_EMAIL = "test.user@example.com";
+    private static final String FIRST_NAME = "Test";
+    private static final String LAST_NAME = "User";
+    private static final String LANGUAGE_CODE = "no";
+    private static final String COUNTRY_CODE = "NO";
+    private static final String PREFERRED_LANGUAGE = "nb-NO";
+    private static final String ERROR_BODY = "{\"error_code\" : \"ERROR_INVALID_USER\"}";
+    private static MockWebServer mockWebServer;
+    private ObjectMapper objectMapper;
+    @Mock
+    private LanguageGateway languageGateway;
+    private VismaConnectUserGatewayAdapter vismaConnectUserGatewayAdapter;
 
-  @Mock private LanguageGateway languageGateway;
+    @BeforeAll
+    static void setUp() throws IOException {
+        mockWebServer = new MockWebServer();
+        mockWebServer.start();
+    }
 
-  private static final UUID USER_ID = UUID.fromString("64dd3e56-4c27-4ca2-8c15-528cfbaf6565");
-  private static final UUID LANGUAGE_ID = UUID.fromString("74dd3e56-4c27-4ca2-8c15-528cfbaf6575");
-  private static final String USER_EMAIL = "test.user@example.com";
-  private static final String FIRST_NAME = "Test";
-  private static final String LAST_NAME = "User";
-  private static final String LANGUAGE_CODE = "no";
-  private static final String COUNTRY_CODE = "NO";
-  private static final String PREFERRED_LANGUAGE = "nb-NO";
-  private static final String APPLICATION_NAME = "Test Application";
-  private static final String REDIRECT_URI = "https://example.com/callback";
-  private static final String STATE = "test-state";
-  private static final String ERROR_BODY = "{\"error_code\" : \"ERROR_INVALID_USER\"}";
+    @AfterAll
+    static void tearDown() throws IOException {
+        mockWebServer.shutdown();
+    }
 
-  private VismaConnectUserGatewayAdapter vismaConnectUserGatewayAdapter;
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        WebClient webClient =
+                WebClient.create(String.format("http://localhost:%s", mockWebServer.getPort()));
+        vismaConnectUserGatewayAdapter = new VismaConnectUserGatewayAdapter(webClient, languageGateway);
+    }
 
-  @BeforeAll
-  static void setUp() throws IOException {
-    mockWebServer = new MockWebServer();
-    mockWebServer.start();
-  }
+    @Test
+    void createUser_ValidInput_UserIdReturned() throws JsonProcessingException {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.CREATED.value())
+                        .setBody(objectMapper.writeValueAsString(getConnectUserResponse())));
 
-  @BeforeEach
-  void setup() {
-    MockitoAnnotations.openMocks(this);
-    objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    WebClient webClient =
-        WebClient.create(String.format("http://localhost:%s", mockWebServer.getPort()));
-    vismaConnectUserGatewayAdapter = new VismaConnectUserGatewayAdapter(webClient, languageGateway);
-  }
+        var userId = vismaConnectUserGatewayAdapter.createUser(getTestUser(), LANGUAGE_CODE);
 
-  @Test
-  void createUser_ValidInput_UserIdReturned() throws JsonProcessingException {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.CREATED.value())
-            .setBody(objectMapper.writeValueAsString(getConnectUserResponse())));
+        assertNotNull(userId);
+        assertEquals(USER_ID, userId);
+    }
 
-    var userId = vismaConnectUserGatewayAdapter.createUser(getTestUser(), LANGUAGE_CODE);
-    
-    assertNotNull(userId);
-    assertEquals(USER_ID, userId);
-  }
+    @Test
+    void createUser_4xxErrorFromConnect_ThrowsException() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.BAD_REQUEST.value())
+                        .setBody(ERROR_BODY));
 
-  @Test
-  void createUser_4xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.BAD_REQUEST.value())
-            .setBody(ERROR_BODY));
+        assertThrows(
+                ConnectUserException.class,
+                () -> vismaConnectUserGatewayAdapter.createUser(getTestUser(), LANGUAGE_CODE));
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.createUser(getTestUser(), LANGUAGE_CODE));
-  }
+    @Test
+    void createUser_5xxErrorFromConnect_ThrowsException() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .setBody(ERROR_BODY));
 
-  @Test
-  void createUser_5xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .setBody(ERROR_BODY));
+        assertThrows(
+                ConnectUserException.class,
+                () -> vismaConnectUserGatewayAdapter.createUser(getTestUser(), LANGUAGE_CODE));
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.createUser(getTestUser(), LANGUAGE_CODE));
-  }
+    @Test
+    void updateUser_ValidInput_Success() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.OK.value()));
 
-  @Test
-  void updateUser_ValidInput_Success() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.OK.value()));
+        assertDoesNotThrow(() -> vismaConnectUserGatewayAdapter.updateUser(getTestUser(), LANGUAGE_CODE));
+    }
 
-    assertDoesNotThrow(() -> vismaConnectUserGatewayAdapter.updateUser(getTestUser(), LANGUAGE_CODE));
-  }
+    @Test
+    void updateUser_4xxErrorFromConnect_ThrowsException() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.BAD_REQUEST.value())
+                        .setBody(ERROR_BODY));
 
-  @Test
-  void updateUser_4xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.BAD_REQUEST.value())
-            .setBody(ERROR_BODY));
+        assertThrows(
+                ConnectUserException.class,
+                () -> vismaConnectUserGatewayAdapter.updateUser(getTestUser(), LANGUAGE_CODE));
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.updateUser(getTestUser(), LANGUAGE_CODE));
-  }
+    @Test
+    void updateUser_5xxErrorFromConnect_ThrowsException() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .setBody(ERROR_BODY));
 
-  @Test
-  void updateUser_5xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .setBody(ERROR_BODY));
+        assertThrows(
+                ConnectUserException.class,
+                () -> vismaConnectUserGatewayAdapter.updateUser(getTestUser(), LANGUAGE_CODE));
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.updateUser(getTestUser(), LANGUAGE_CODE));
-  }
+    @Test
+    void findUserById_ValidInput_UserReturned() throws JsonProcessingException {
+        when(languageGateway.findByCode(LANGUAGE_CODE)).thenReturn(getTestLanguage());
 
-  @Test
-  void unlinkClient_ValidInput_Success() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.OK.value()));
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.OK.value())
+                        .setBody(objectMapper.writeValueAsString(getConnectUserResponse())));
 
-    assertDoesNotThrow(() -> vismaConnectUserGatewayAdapter.unlinkClient(USER_ID));
-  }
+        var user = vismaConnectUserGatewayAdapter.findUserById(USER_ID.toString());
 
-  @Test
-  void unlinkClient_4xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.BAD_REQUEST.value())
-            .setBody(ERROR_BODY));
+        assertNotNull(user);
+        assertEquals(USER_ID, user.idUser());
+        assertEquals(LANGUAGE_ID, user.idLanguage());
+        assertEquals(USER_EMAIL, user.email());
+        assertEquals(FIRST_NAME, user.firstName());
+        assertEquals(LAST_NAME, user.lastName());
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.unlinkClient(USER_ID));
-  }
+    @Test
+    void findUserById_4xxErrorFromConnect_ThrowsException() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.BAD_REQUEST.value())
+                        .setBody(ERROR_BODY));
 
-  @Test
-  void unlinkClient_5xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .setBody(ERROR_BODY));
+        assertThrows(
+                ConnectUserException.class,
+                () -> vismaConnectUserGatewayAdapter.findUserById(USER_ID.toString()));
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.unlinkClient(USER_ID));
-  }
+    @Test
+    void findUserById_5xxErrorFromConnect_ThrowsException() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .setBody(ERROR_BODY));
 
-  @Test
-  void findUserById_ValidInput_UserReturned() throws JsonProcessingException {
-    when(languageGateway.findByCode(LANGUAGE_CODE)).thenReturn(getTestLanguage());
-    
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.OK.value())
-            .setBody(objectMapper.writeValueAsString(getConnectUserResponse())));
+        assertThrows(
+                ConnectUserException.class,
+                () -> vismaConnectUserGatewayAdapter.findUserById(USER_ID.toString()));
+    }
 
-    var user = vismaConnectUserGatewayAdapter.findUserById(USER_ID.toString());
-    
-    assertNotNull(user);
-    assertEquals(USER_ID, user.idUser());
-    assertEquals(LANGUAGE_ID, user.idLanguage());
-    assertEquals(USER_EMAIL, user.email());
-    assertEquals(FIRST_NAME, user.firstName());
-    assertEquals(LAST_NAME, user.lastName());
-  }
+    @Test
+    void findUserByEmail_ValidInput_UserReturned() throws JsonProcessingException {
+        var connectUserResponses = new ConnectUserResponse[]{getConnectUserResponse()};
 
-  @Test
-  void findUserById_4xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.BAD_REQUEST.value())
-            .setBody(ERROR_BODY));
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.OK.value())
+                        .setBody(objectMapper.writeValueAsString(connectUserResponses)));
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.findUserById(USER_ID.toString()));
-  }
+        var userOptional = vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL);
 
-  @Test
-  void findUserById_5xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .setBody(ERROR_BODY));
+        assertTrue(userOptional.isPresent());
+        var user = userOptional.get();
+        assertEquals(USER_ID, user.idUser());
+        assertEquals(USER_EMAIL, user.email());
+        assertEquals(FIRST_NAME, user.firstName());
+        assertEquals(LAST_NAME, user.lastName());
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.findUserById(USER_ID.toString()));
-  }
+    @Test
+    void findUserByEmail_ValidInput_UserNotFound() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.NO_CONTENT.value())
+                        .setBody("")
+        );
 
-  @Test
-  void findUserByEmail_ValidInput_UserReturned() throws JsonProcessingException {
-    var connectUserResponses = new ConnectUserResponse[]{getConnectUserResponse()};
-    
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.OK.value())
-            .setBody(objectMapper.writeValueAsString(connectUserResponses)));
+        var userOptional = vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL);
 
-    var userOptional = vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL);
-    
-    assertTrue(userOptional.isPresent());
-    var user = userOptional.get();
-    assertEquals(USER_ID, user.idUser());
-    assertEquals(USER_EMAIL, user.email());
-    assertEquals(FIRST_NAME, user.firstName());
-    assertEquals(LAST_NAME, user.lastName());
-  }
+        assertFalse(userOptional.isPresent());
+    }
 
-  @Test
-  void findUserByEmail_ValidInput_UserNotFound() {
-    mockWebServer.enqueue(
-            new MockResponse()
-                    .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .setResponseCode(HttpStatus.NO_CONTENT.value())
-                    .setBody("")
-    );
+    @Test
+    void findUserByEmail_NoContentResponse_EmptyOptionalReturned() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.NO_CONTENT.value()));
 
-    var userOptional = vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL);
+        var userOptional = vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL);
 
-    assertFalse(userOptional.isPresent());
-  }
-  
-  
-  @Test
-  void findUserByEmail_NoContentResponse_EmptyOptionalReturned() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.NO_CONTENT.value()));
+        assertFalse(userOptional.isPresent());
+    }
 
-    var userOptional = vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL);
-    
-    assertFalse(userOptional.isPresent());
-  }
+    @Test
+    void findUserByEmail_EmptyArrayResponse_EmptyOptionalReturned() throws JsonProcessingException {
+        var emptyResponses = new ConnectUserResponse[]{};
 
-  @Test
-  void findUserByEmail_EmptyArrayResponse_EmptyOptionalReturned() throws JsonProcessingException {
-    var emptyResponses = new ConnectUserResponse[]{};
-    
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.OK.value())
-            .setBody(objectMapper.writeValueAsString(emptyResponses)));
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.OK.value())
+                        .setBody(objectMapper.writeValueAsString(emptyResponses)));
 
-    var userOptional = vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL);
-    
-    assertFalse(userOptional.isPresent());
-  }
+        var userOptional = vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL);
 
-  @Test
-  void findUserByEmail_4xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.BAD_REQUEST.value())
-            .setBody(ERROR_BODY));
+        assertFalse(userOptional.isPresent());
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL));
-  }
+    @Test
+    void findUserByEmail_4xxErrorFromConnect_ThrowsException() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.BAD_REQUEST.value())
+                        .setBody(ERROR_BODY));
 
-  @Test
-  void findUserByEmail_5xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .setBody(ERROR_BODY));
+        assertThrows(
+                ConnectUserException.class,
+                () -> vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL));
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL));
-  }
+    @Test
+    void findUserByEmail_5xxErrorFromConnect_ThrowsException() {
+        mockWebServer.enqueue(
+                new MockResponse()
+                        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .setBody(ERROR_BODY));
 
-  @Test
-  void sendEmailActivation_ValidInput_Success() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.ACCEPTED.value()));
+        assertThrows(
+                ConnectUserException.class,
+                () -> vismaConnectUserGatewayAdapter.findUserByEmail(USER_EMAIL));
+    }
 
-    assertDoesNotThrow(() -> vismaConnectUserGatewayAdapter.sendEmailActivation(
-        USER_ID.toString(), APPLICATION_NAME, REDIRECT_URI, STATE, USER_EMAIL));
-  }
+    private ConnectUserResponse getConnectUserResponse() {
+        return new ConnectUserResponse(
+                USER_ID,
+                USER_EMAIL,
+                true,
+                LocalDateTime.now(),
+                FIRST_NAME + " " + LAST_NAME,
+                FIRST_NAME,
+                LAST_NAME,
+                COUNTRY_CODE,
+                PREFERRED_LANGUAGE,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                "1",
+                LocalDateTime.now(),
+                LocalDateTime.now());
+    }
 
-  @Test
-  void sendEmailActivation_UnexpectedResponseCode_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.OK.value()));
+    private User getTestUser() {
+        return new User(USER_ID, LANGUAGE_ID, USER_EMAIL, FIRST_NAME, LAST_NAME, null, null);
+    }
 
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.sendEmailActivation(
-            USER_ID.toString(), APPLICATION_NAME, REDIRECT_URI, STATE, USER_EMAIL));
-  }
-
-  @Test
-  void sendEmailActivation_4xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.BAD_REQUEST.value())
-            .setBody(ERROR_BODY));
-
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.sendEmailActivation(
-            USER_ID.toString(), APPLICATION_NAME, REDIRECT_URI, STATE, USER_EMAIL));
-  }
-
-  @Test
-  void sendEmailActivation_5xxErrorFromConnect_ThrowsException() {
-    mockWebServer.enqueue(
-        new MockResponse()
-            .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .setBody(ERROR_BODY));
-
-    assertThrows(
-        ConnectUserException.class,
-        () -> vismaConnectUserGatewayAdapter.sendEmailActivation(
-            USER_ID.toString(), APPLICATION_NAME, REDIRECT_URI, STATE, USER_EMAIL));
-  }
-
-  @AfterAll
-  static void tearDown() throws IOException {
-    mockWebServer.shutdown();
-  }
-
-  private ConnectUserResponse getConnectUserResponse() {
-    return new ConnectUserResponse(
-        USER_ID,
-        USER_EMAIL,
-        true,
-        LocalDateTime.now(),
-        FIRST_NAME + " " + LAST_NAME,
-        FIRST_NAME,
-        LAST_NAME,
-        COUNTRY_CODE,
-        PREFERRED_LANGUAGE,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        "1",
-        LocalDateTime.now(),
-        LocalDateTime.now());
-  }
-
-  private User getTestUser() {
-    return new User(USER_ID, LANGUAGE_ID, USER_EMAIL, FIRST_NAME, LAST_NAME, null, null);
-  }
-
-  private Language getTestLanguage() {
-    return new Language(LANGUAGE_ID, "Norwegian", LANGUAGE_CODE);
-  }
+    private Language getTestLanguage() {
+        return new Language(LANGUAGE_ID, "Norwegian", LANGUAGE_CODE);
+    }
 
 
 }

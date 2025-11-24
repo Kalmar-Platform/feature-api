@@ -17,9 +17,9 @@ public class UpdateUserUseCase implements UpdateUserInputPort {
     private final LanguageGateway languageGateway;
     private final VismaConnectUserGateway vismaConnectUserGateway;
 
-    public UpdateUserUseCase(UserGateway userGateway, 
-                            LanguageGateway languageGateway,
-                            VismaConnectUserGateway vismaConnectUserGateway) {
+    public UpdateUserUseCase(UserGateway userGateway,
+                             LanguageGateway languageGateway,
+                             VismaConnectUserGateway vismaConnectUserGateway) {
         this.userGateway = userGateway;
         this.languageGateway = languageGateway;
         this.vismaConnectUserGateway = vismaConnectUserGateway;
@@ -33,23 +33,23 @@ public class UpdateUserUseCase implements UpdateUserInputPort {
         }
 
         UUID userId = UUID.fromString(inputData.userId());
-        
+
         // Check if user exists (this will throw ResourceNotFoundException if not found)
         var existingUser = userGateway.findById(userId);
 
         // Get language by code
         var language = languageGateway.findByCode(inputData.languageCode());
 
-    // Create user entity with updated information
-    var userToUpdate =
-        new User(
-            userId,
-            language.idLanguage(),
-            inputData.email(),
-            inputData.firstName(),
-            inputData.lastName(),
-            existingUser.recordVersion(),
-            new Date());
+        // Create user entity with updated information
+        var userToUpdate =
+                new User(
+                        userId,
+                        language.idLanguage(),
+                        inputData.email(),
+                        inputData.firstName(),
+                        inputData.lastName(),
+                        existingUser.recordVersion(),
+                        new Date());
 
         // Update user in Visma Connect first
         vismaConnectUserGateway.updateUser(

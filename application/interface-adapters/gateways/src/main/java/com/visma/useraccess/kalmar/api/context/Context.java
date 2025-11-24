@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Context {
-    
+
     @Id
     @Column(name = "IdContext", columnDefinition = "CHAR(36)")
     @JdbcTypeCode(SqlTypes.CHAR)

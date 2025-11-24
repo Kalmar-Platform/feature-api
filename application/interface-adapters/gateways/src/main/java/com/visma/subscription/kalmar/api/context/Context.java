@@ -18,39 +18,39 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Context {
 
-  @Id
-  @Column(name = "IdContext", columnDefinition = "CHAR(36)")
-  @JdbcTypeCode(SqlTypes.CHAR)
-  private UUID idContext;
+    @Id
+    @Column(name = "IdContext", columnDefinition = "CHAR(36)")
+    @JdbcTypeCode(SqlTypes.CHAR)
+    private UUID idContext;
 
-  @Column(name = "IdContextParent", columnDefinition = "CHAR(36)")
-  @JdbcTypeCode(SqlTypes.CHAR)
-  private UUID idContextParent;
+    @Column(name = "IdContextParent", columnDefinition = "CHAR(36)")
+    @JdbcTypeCode(SqlTypes.CHAR)
+    private UUID idContextParent;
 
-  @Column(name = "IdCountry", nullable = false, columnDefinition = "CHAR(36)")
-  @JdbcTypeCode(SqlTypes.CHAR)
-  private UUID idCountry;
+    @Column(name = "IdCountry", nullable = false, columnDefinition = "CHAR(36)")
+    @JdbcTypeCode(SqlTypes.CHAR)
+    private UUID idCountry;
 
-  @Column(name = "Name", nullable = false, length = 255)
-  private String name;
+    @Column(name = "Name", nullable = false, length = 255)
+    private String name;
 
-  @Column(name = "OrganizationNumber", nullable = false, length = 255)
-  private String organizationNumber;
+    @Column(name = "OrganizationNumber", nullable = false, length = 255)
+    private String organizationNumber;
 
-  @Column(name = "UserNameChangedBy", length = 255)
-  private String userNameChangedBy;
+    @Column(name = "UserNameChangedBy", length = 255)
+    private String userNameChangedBy;
 
-  @Column(name = "WhenEdited")
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date whenEdited;
+    @Column(name = "WhenEdited")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date whenEdited;
 
-  @PrePersist
-  public void prePersist() {
-    if (idContext == null) {
-      idContext = UUID.randomUUID();
+    @PrePersist
+    public void prePersist() {
+        if (idContext == null) {
+            idContext = UUID.randomUUID();
+        }
+        if (whenEdited == null) {
+            whenEdited = new Date();
+        }
     }
-    if (whenEdited == null) {
-      whenEdited = new Date();
-    }
-  }
 }

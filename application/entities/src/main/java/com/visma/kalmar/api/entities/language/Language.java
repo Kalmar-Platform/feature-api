@@ -6,4 +6,5 @@ public record Language(
         UUID idLanguage,
         String name,
         String code
-) {}
+) {
+}

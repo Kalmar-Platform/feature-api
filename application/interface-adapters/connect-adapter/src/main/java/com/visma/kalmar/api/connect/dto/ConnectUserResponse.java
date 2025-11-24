@@ -2,6 +2,7 @@ package com.visma.kalmar.api.connect.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -36,4 +37,5 @@ public record ConnectUserResponse(
         @JsonProperty("last_login_date")
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         LocalDateTime lastLoginDate
-) {}
+) {
+}

@@ -11,4 +11,5 @@ public record UserOutputData(
         String lastName,
         String languageCode,
         boolean created
-) {}
+) {
+}

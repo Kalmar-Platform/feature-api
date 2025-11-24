@@ -20,50 +20,50 @@ import java.util.*;
  */
 public class MockJwtDecoder implements JwtDecoder {
 
-  private static final String TENANT = "tenant";
+    private static final String TENANT = "tenant";
 
-  private final JwtDecoder jwtDecoder;
+    private final JwtDecoder jwtDecoder;
 
-  public MockJwtDecoder(JwtDecoder jwtDecoder) {
-    this.jwtDecoder = jwtDecoder;
-  }
-
-  @Override
-  public Jwt decode(String token) throws JwtException {
-    Optional<String> tenantIdOptional = getTenantIdOptional(token);
-    final Jwt jwt;
-    final Map<String, Object> claims;
-
-    if (tenantIdOptional.isPresent()) {
-      String tenantId = tenantIdOptional.get();
-      jwt =
-          jwtDecoder.decode(
-              token.substring(0, token.length() - TENANT.length() - tenantId.length()));
-      claims = new HashMap<>(jwt.getClaims());
-      claims.put("tenant_id", tenantId);
-    } else {
-      jwt = jwtDecoder.decode(token);
-      claims = new HashMap<>(jwt.getClaims());
+    public MockJwtDecoder(JwtDecoder jwtDecoder) {
+        this.jwtDecoder = jwtDecoder;
     }
 
-    return new Jwt(
-        jwt.getTokenValue(),
-        jwt.getIssuedAt(),
-        jwt.getExpiresAt(),
-        jwt.getHeaders(),
-        Collections.unmodifiableMap(claims));
-  }
+    @Override
+    public Jwt decode(String token) throws JwtException {
+        Optional<String> tenantIdOptional = getTenantIdOptional(token);
+        final Jwt jwt;
+        final Map<String, Object> claims;
 
-  private Optional<String> getTenantIdOptional(String token) {
-    if (token.contains(TENANT) && token.length() > TENANT.length() + 36) {
-      final String tenantId = token.substring(token.length() - 36);
-      try {
-        UUID.fromString(tenantId);
-        return Optional.of(tenantId);
-      } catch (IllegalArgumentException e) {
+        if (tenantIdOptional.isPresent()) {
+            String tenantId = tenantIdOptional.get();
+            jwt =
+                    jwtDecoder.decode(
+                            token.substring(0, token.length() - TENANT.length() - tenantId.length()));
+            claims = new HashMap<>(jwt.getClaims());
+            claims.put("tenant_id", tenantId);
+        } else {
+            jwt = jwtDecoder.decode(token);
+            claims = new HashMap<>(jwt.getClaims());
+        }
+
+        return new Jwt(
+                jwt.getTokenValue(),
+                jwt.getIssuedAt(),
+                jwt.getExpiresAt(),
+                jwt.getHeaders(),
+                Collections.unmodifiableMap(claims));
+    }
+
+    private Optional<String> getTenantIdOptional(String token) {
+        if (token.contains(TENANT) && token.length() > TENANT.length() + 36) {
+            final String tenantId = token.substring(token.length() - 36);
+            try {
+                UUID.fromString(tenantId);
+                return Optional.of(tenantId);
+            } catch (IllegalArgumentException e) {
+                return Optional.empty();
+            }
+        }
         return Optional.empty();
-      }
     }
-    return Optional.empty();
-  }
 }

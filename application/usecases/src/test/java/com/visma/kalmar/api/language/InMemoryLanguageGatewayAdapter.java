@@ -8,7 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryLanguageGatewayAdapter implements LanguageGateway {
-    
+
     private final Map<UUID, Language> database = new ConcurrentHashMap<>();
     private final Map<String, Language> codeIndex = new ConcurrentHashMap<>();
 

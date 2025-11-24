@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Country {
-    
+
     @Id
     @Column(name = "IdCountry", columnDefinition = "CHAR(36)")
     @JdbcTypeCode(SqlTypes.CHAR)

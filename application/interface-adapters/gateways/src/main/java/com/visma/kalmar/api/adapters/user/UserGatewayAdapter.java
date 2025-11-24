@@ -98,9 +98,9 @@ public class UserGatewayAdapter implements UserGateway {
     public void deleteById(UUID userId) {
         // Find the user to verify it exists before deleting
         var userAccessUser = userAccessUserRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", 
+                .orElseThrow(() -> new ResourceNotFoundException("User",
                         "User not found with id: " + userId));
-        
+
         // Delete the user entity
         userAccessUserRepository.delete(userAccessUser);
     }

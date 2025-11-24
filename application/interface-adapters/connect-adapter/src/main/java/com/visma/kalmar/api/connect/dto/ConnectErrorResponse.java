@@ -5,4 +5,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record ConnectErrorResponse(
         @JsonProperty("error_code")
         String errorCode
-) {}
+) {
+}

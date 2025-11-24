@@ -10,14 +10,14 @@ import java.util.UUID;
 
 public class CreateUserUseCase implements CreateUserInputPort {
 
+    private static final Long RECORD_VERSION = 1L;
     private final UserGateway userGateway;
     private final LanguageGateway languageGateway;
     private final VismaConnectUserGateway vismaConnectUserGateway;
-    private static final Long RECORD_VERSION = 1L;
 
-    public CreateUserUseCase(UserGateway userGateway, 
-                            LanguageGateway languageGateway,
-                            VismaConnectUserGateway vismaConnectUserGateway) {
+    public CreateUserUseCase(UserGateway userGateway,
+                             LanguageGateway languageGateway,
+                             VismaConnectUserGateway vismaConnectUserGateway) {
         this.userGateway = userGateway;
         this.languageGateway = languageGateway;
         this.vismaConnectUserGateway = vismaConnectUserGateway;

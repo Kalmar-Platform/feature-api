@@ -8,10 +8,10 @@ spring:
   datasource:
     username: ${USER_ACCESS_DB_USERNAME}
     password: ${USER_ACCESS_DB_PASSWORD}
-#    username: ${USER_ACCESS_DB_USERNAME:useraccess_user}
-#    password: ${USER_ACCESS_DB_PASSWORD:useraccess_pass}
-#    username: ${USER_ACCESS_DB_USERNAME:DB_USERNAME}
-#    password: ${USER_ACCESS_DB_PASSWORD:DB_PASSWORD}
+    #    username: ${USER_ACCESS_DB_USERNAME:useraccess_user}
+    #    password: ${USER_ACCESS_DB_PASSWORD:useraccess_pass}
+    #    username: ${USER_ACCESS_DB_USERNAME:DB_USERNAME}
+    #    password: ${USER_ACCESS_DB_PASSWORD:DB_PASSWORD}
     driver-class-name: software.aws.rds.jdbc.mysql.Driver
     hikari:
       maximum-pool-size: 5
@@ -61,9 +61,9 @@ server:
   compression:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
-    
+
 security-public-request-paths:
-  get: /actuator/health, /actuator/prometheus, /actuator/httptrace, /v3/api-docs/**, /swagger-ui.html, /swagger-ui/** 
+  get: /actuator/health, /actuator/prometheus, /actuator/httptrace, /v3/api-docs/**, /swagger-ui.html, /swagger-ui/**
   post: /api/v1/openweb/register # Public endpoint for customer registration
 
 

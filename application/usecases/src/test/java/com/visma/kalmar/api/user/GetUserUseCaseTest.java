@@ -11,10 +11,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GetUserUseCaseTest {
 
@@ -36,7 +33,7 @@ class GetUserUseCaseTest {
         useCase = new GetUserUseCase(userGateway, languageGateway);
 
         languageGateway.save(new Language(LANGUAGE_ID, "English", LANGUAGE_CODE));
-        
+
         User testUser = new User(USER_ID, LANGUAGE_ID, EMAIL, FIRST_NAME, LAST_NAME, 1L, new Date());
         userGateway.save(testUser);
     }
@@ -61,7 +58,8 @@ class GetUserUseCaseTest {
         UUID nonExistentId = UUID.randomUUID();
 
         assertThrows(ResourceNotFoundException.class,
-                () -> useCase.getUserById(nonExistentId, output -> {}));
+                () -> useCase.getUserById(nonExistentId, output -> {
+                }));
     }
 
     @Test
@@ -84,18 +82,20 @@ class GetUserUseCaseTest {
         String nonExistentEmail = "nonexistent@example.com";
 
         assertThrows(ResourceNotFoundException.class,
-                () -> useCase.getUserByEmail(nonExistentEmail, output -> {}));
+                () -> useCase.getUserByEmail(nonExistentEmail, output -> {
+                }));
     }
 
     @Test
     void getUserById_withNonExistentLanguage_throwsException() {
         UUID userWithInvalidLanguage = UUID.randomUUID();
         UUID invalidLanguageId = UUID.randomUUID();
-        User testUser = new User(userWithInvalidLanguage, invalidLanguageId, "test2@example.com", 
+        User testUser = new User(userWithInvalidLanguage, invalidLanguageId, "test2@example.com",
                 "Jane", "Smith", 1L, new Date());
         userGateway.save(testUser);
 
         assertThrows(ResourceNotFoundException.class,
-                () -> useCase.getUserById(userWithInvalidLanguage, output -> {}));
+                () -> useCase.getUserById(userWithInvalidLanguage, output -> {
+                }));
     }
 }

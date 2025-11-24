@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 public class VismaConnectConfigurationImpl implements VismaConnectConfiguration {
     @Value("${connect.public-endpoint}")
     private String publicApiEndpoint;
-    
+
     @Override
     public String publicApiEndpoint() {
         return publicApiEndpoint;

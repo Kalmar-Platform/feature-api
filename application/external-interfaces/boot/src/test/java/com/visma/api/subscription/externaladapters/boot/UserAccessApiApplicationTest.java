@@ -1,4 +1,4 @@
-package com.visma.api.subscription.externaladapters.boot; 
+package com.visma.api.subscription.externaladapters.boot;
 
 import com.visma.kalmar.api.UserAccessApiApplication;
 import org.junit.jupiter.api.Test;

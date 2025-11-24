@@ -15,24 +15,24 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Country {
-  @Id
-  @Column(name = "IdCountry", columnDefinition = "CHAR(36)")
-  @JdbcTypeCode(SqlTypes.CHAR)
-  private UUID idCountry;
+    @Id
+    @Column(name = "IdCountry", columnDefinition = "CHAR(36)")
+    @JdbcTypeCode(SqlTypes.CHAR)
+    private UUID idCountry;
 
-  @Column(name = "Name", nullable = false, length = 255)
-  private String name;
+    @Column(name = "Name", nullable = false, length = 255)
+    private String name;
 
-  @Column(name = "Code", nullable = false, length = 2, unique = true)
-  private String code;
+    @Column(name = "Code", nullable = false, length = 2, unique = true)
+    private String code;
 
-  @Column(name = "CurrencyCode", nullable = false, length = 3)
-  private String currencyCode;
+    @Column(name = "CurrencyCode", nullable = false, length = 3)
+    private String currencyCode;
 
-  @PrePersist
-  public void prePersist() {
-    if (idCountry == null) {
-      idCountry = UUID.randomUUID();
+    @PrePersist
+    public void prePersist() {
+        if (idCountry == null) {
+            idCountry = UUID.randomUUID();
+        }
     }
-  }
 }

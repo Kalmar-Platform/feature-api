@@ -8,4 +8,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @AuthenticationPrincipal(expression = "@jwtTokenInspector.getConnectUserId(#this)")
-public @interface ConnectUserId {}
+public @interface ConnectUserId {
+}

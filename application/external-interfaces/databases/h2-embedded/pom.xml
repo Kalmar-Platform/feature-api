@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.visma.kalmar.api</groupId>
-    <artifactId>databases</artifactId>
-    <version>1.0.0</version>
-  </parent>
-  
-  <artifactId>h2-embedded</artifactId>
-  <name>UserAccess API H2 embedded database</name>
-  <description>Allows persisting data in memory, using an H2 database</description>
+    <parent>
+        <groupId>com.visma.kalmar.api</groupId>
+        <artifactId>databases</artifactId>
+        <version>1.0.0</version>
+    </parent>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
+    <artifactId>h2-embedded</artifactId>
+    <name>UserAccess API H2 embedded database</name>
+    <description>Allows persisting data in memory, using an H2 database</description>
 
-  <properties>
-    <h2.version>2.2.220</h2.version>
-  </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <h2.version>2.2.220</h2.version>
+    </properties>
 
 </project>

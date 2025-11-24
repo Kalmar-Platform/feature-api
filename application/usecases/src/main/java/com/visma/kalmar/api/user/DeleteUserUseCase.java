@@ -15,8 +15,8 @@ public class DeleteUserUseCase implements DeleteUserInputPort {
     private final UserGateway userGateway;
     private final VismaConnectUserGateway vismaConnectUserGateway;
 
-    public DeleteUserUseCase(UserGateway userGateway, 
-                           VismaConnectUserGateway vismaConnectUserGateway) {
+    public DeleteUserUseCase(UserGateway userGateway,
+                             VismaConnectUserGateway vismaConnectUserGateway) {
         this.userGateway = userGateway;
         this.vismaConnectUserGateway = vismaConnectUserGateway;
     }

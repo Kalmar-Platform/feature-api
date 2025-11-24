@@ -8,7 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryUserGatewayAdapter implements UserGateway {
-    
+
     private final Map<UUID, User> database = new ConcurrentHashMap<>();
     private final Map<String, User> emailIndex = new ConcurrentHashMap<>();
 

@@ -18,11 +18,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
-  @Id
-  @Column(name = "IdRole", columnDefinition = "CHAR(36)")
-  @JdbcTypeCode(SqlTypes.CHAR)
-  private UUID idRole;
+    @Id
+    @Column(name = "IdRole", columnDefinition = "CHAR(36)")
+    @JdbcTypeCode(SqlTypes.CHAR)
+    private UUID idRole;
 
-  @Column(name = "Name", nullable = false, length = 255)
-  private String name;
+    @Column(name = "Name", nullable = false, length = 255)
+    private String name;
 }

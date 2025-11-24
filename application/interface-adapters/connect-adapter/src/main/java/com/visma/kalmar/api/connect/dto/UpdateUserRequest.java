@@ -11,4 +11,5 @@ public record UpdateUserRequest(
         String countryCode,
         @JsonProperty("preferred_language")
         String preferredLanguage
-) {}
+) {
+}

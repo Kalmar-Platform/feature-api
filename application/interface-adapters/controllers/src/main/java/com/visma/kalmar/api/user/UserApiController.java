@@ -25,17 +25,17 @@ public class UserApiController implements UserApi {
 
     @Autowired
     public UserApiController(CreateUserInputPort createUserInputPort,
-                            UpdateUserInputPort updateUserInputPort,
-                            DeleteUserInputPort deleteUserInputPort,
-                            GetUserInputPort getUserInputPort) {
+                             UpdateUserInputPort updateUserInputPort,
+                             DeleteUserInputPort deleteUserInputPort,
+                             GetUserInputPort getUserInputPort) {
         this(createUserInputPort, updateUserInputPort, deleteUserInputPort, getUserInputPort, new UserPresenter());
     }
 
     UserApiController(CreateUserInputPort createUserInputPort,
-                     UpdateUserInputPort updateUserInputPort,
-                     DeleteUserInputPort deleteUserInputPort,
-                     GetUserInputPort getUserInputPort,
-                     UserPresenter userPresenter) {
+                      UpdateUserInputPort updateUserInputPort,
+                      DeleteUserInputPort deleteUserInputPort,
+                      GetUserInputPort getUserInputPort,
+                      UserPresenter userPresenter) {
         this.createUserInputPort = createUserInputPort;
         this.updateUserInputPort = updateUserInputPort;
         this.deleteUserInputPort = deleteUserInputPort;

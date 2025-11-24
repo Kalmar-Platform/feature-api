@@ -25,59 +25,59 @@ import java.util.Objects;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-    basePackages = "com.visma.useraccess.kalmar.api",
-    entityManagerFactoryRef = "useraccessEntityManagerFactory",
-    transactionManagerRef = "useraccessTransactionManager")
+        basePackages = "com.visma.useraccess.kalmar.api",
+        entityManagerFactoryRef = "useraccessEntityManagerFactory",
+        transactionManagerRef = "useraccessTransactionManager")
 public class UserAccessDatabaseConfig {
-  @Value("${spring.jpa.database-platform}")
-  private String dialect;
+    @Value("${spring.jpa.database-platform}")
+    private String dialect;
 
-  @Bean
-  @Primary
-  @ConfigurationProperties("spring.datasource")
-  public DataSourceProperties useraccessDataSourceProperties() {
-    return new DataSourceProperties();
-  }
+    @Bean
+    @Primary
+    @ConfigurationProperties("spring.datasource")
+    public DataSourceProperties useraccessDataSourceProperties() {
+        return new DataSourceProperties();
+    }
 
-  @Bean
-  @Primary
-  @ConfigurationProperties("spring.datasource")
-  public DataSource useraccessDataSource() {
-    return useraccessDataSourceProperties()
-        .initializeDataSourceBuilder()
-        .type(HikariDataSource.class)
-        .build();
-  }
+    @Bean
+    @Primary
+    @ConfigurationProperties("spring.datasource")
+    public DataSource useraccessDataSource() {
+        return useraccessDataSourceProperties()
+                .initializeDataSourceBuilder()
+                .type(HikariDataSource.class)
+                .build();
+    }
 
-  @Primary
-  @Bean(name = "useraccessEntityManagerFactory")
-  public LocalContainerEntityManagerFactoryBean useraccessEntityManagerFactory(
-      EntityManagerFactoryBuilder builder) {
-    var em = new LocalContainerEntityManagerFactoryBean();
-    em.setDataSource(useraccessDataSource());
-    em.setPackagesToScan("com.visma.useraccess.kalmar.api.**");
-    var vendorAdapter = new HibernateJpaVendorAdapter();
-    em.setJpaVendorAdapter(vendorAdapter);
-    HashMap<String, Object> properties = new HashMap<>();
-    properties.put("hibernate.dialect", dialect);
-    em.setJpaPropertyMap(properties);
-    return em;
-  }
+    @Primary
+    @Bean(name = "useraccessEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean useraccessEntityManagerFactory(
+            EntityManagerFactoryBuilder builder) {
+        var em = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(useraccessDataSource());
+        em.setPackagesToScan("com.visma.useraccess.kalmar.api.**");
+        var vendorAdapter = new HibernateJpaVendorAdapter();
+        em.setJpaVendorAdapter(vendorAdapter);
+        HashMap<String, Object> properties = new HashMap<>();
+        properties.put("hibernate.dialect", dialect);
+        em.setJpaPropertyMap(properties);
+        return em;
+    }
 
-  @Primary
-  @Bean
-  public PlatformTransactionManager useraccessTransactionManager(
-      final @Qualifier("useraccessEntityManagerFactory") LocalContainerEntityManagerFactoryBean
-              ondemandEntityManagerFactory) {
+    @Primary
+    @Bean
+    public PlatformTransactionManager useraccessTransactionManager(
+            final @Qualifier("useraccessEntityManagerFactory") LocalContainerEntityManagerFactoryBean
+                    ondemandEntityManagerFactory) {
 
-    return new JpaTransactionManager(
-        Objects.requireNonNull(ondemandEntityManagerFactory.getObject()));
-  }
+        return new JpaTransactionManager(
+                Objects.requireNonNull(ondemandEntityManagerFactory.getObject()));
+    }
 
-  @Bean
-  public ConfigurableServletWebServerFactory webServerFactory() {
-    var factory = new TomcatServletWebServerFactory();
-    factory.addConnectorCustomizers(connector -> connector.setProperty("relaxedQueryChars", "[]|"));
-    return factory;
-  }
+    @Bean
+    public ConfigurableServletWebServerFactory webServerFactory() {
+        var factory = new TomcatServletWebServerFactory();
+        factory.addConnectorCustomizers(connector -> connector.setProperty("relaxedQueryChars", "[]|"));
+        return factory;
+    }
 }

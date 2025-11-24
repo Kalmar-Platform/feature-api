@@ -14,32 +14,33 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class ConnectAdapterConfig {
 
-  @Autowired private VismaConnectConfiguration vismaConnectConfiguration;
+    @Autowired
+    private VismaConnectConfiguration vismaConnectConfiguration;
 
-  @Bean
-  public OAuth2AuthorizedClientManager authorizedClientManager(
-      ClientRegistrationRepository clientRegistrationRepository,
-      OAuth2AuthorizedClientService authorizedClientService) {
+    @Bean
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository clientRegistrationRepository,
+            OAuth2AuthorizedClientService authorizedClientService) {
 
-    var authorizedClientProvider =
-        OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build();
+        var authorizedClientProvider =
+                OAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build();
 
-    var authorizedClientManager =
-        new AuthorizedClientServiceOAuth2AuthorizedClientManager(
-            clientRegistrationRepository, authorizedClientService);
-    authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+        var authorizedClientManager =
+                new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+                        clientRegistrationRepository, authorizedClientService);
+        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
-    return authorizedClientManager;
-  }
+        return authorizedClientManager;
+    }
 
-  @Bean
-  public WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
-    var oauth2 = new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
-    oauth2.setDefaultClientRegistrationId("visma-connect");
+    @Bean
+    public WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        var oauth2 = new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+        oauth2.setDefaultClientRegistrationId("visma-connect");
 
-    return WebClient.builder()
-        .baseUrl(vismaConnectConfiguration.publicApiEndpoint())
-        .apply(oauth2.oauth2Configuration())
-        .build();
-  }
+        return WebClient.builder()
+                .baseUrl(vismaConnectConfiguration.publicApiEndpoint())
+                .apply(oauth2.oauth2Configuration())
+                .build();
+    }
 }

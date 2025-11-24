@@ -91,7 +91,8 @@ class UpdateUserUseCaseTest {
         );
 
         assertThrows(ResourceNotFoundException.class,
-                () -> useCase.updateUser(inputData, output -> {}));
+                () -> useCase.updateUser(inputData, output -> {
+                }));
     }
 
     @Test
@@ -105,7 +106,8 @@ class UpdateUserUseCaseTest {
         );
 
         var exception = assertThrows(IllegalArgumentException.class,
-                () -> useCase.updateUser(inputData, output -> {}));
+                () -> useCase.updateUser(inputData, output -> {
+                }));
 
         assertEquals("User ID is required for update operation", exception.getMessage());
     }
@@ -121,7 +123,8 @@ class UpdateUserUseCaseTest {
         );
 
         var exception = assertThrows(IllegalArgumentException.class,
-                () -> useCase.updateUser(inputData, output -> {}));
+                () -> useCase.updateUser(inputData, output -> {
+                }));
 
         assertEquals("User ID is required for update operation", exception.getMessage());
     }
@@ -138,7 +141,8 @@ class UpdateUserUseCaseTest {
         );
 
         assertThrows(ResourceNotFoundException.class,
-                () -> useCase.updateUser(inputData, output -> {}));
+                () -> useCase.updateUser(inputData, output -> {
+                }));
     }
 
     @Test
@@ -153,7 +157,8 @@ class UpdateUserUseCaseTest {
         );
 
         assertThrows(ConnectUserException.class,
-                () -> useCase.updateUser(inputData, output -> {}));
+                () -> useCase.updateUser(inputData, output -> {
+                }));
 
         var unchangedUser = userGateway.findById(USER_ID);
         assertEquals(EMAIL, unchangedUser.email());
@@ -191,7 +196,8 @@ class UpdateUserUseCaseTest {
                 LANGUAGE_CODE
         );
 
-        useCase.updateUser(inputData, output -> {});
+        useCase.updateUser(inputData, output -> {
+        });
 
         var updatedUser = userGateway.findById(USER_ID);
         assertNotNull(updatedUser.whenEdited());

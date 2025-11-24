@@ -11,8 +11,8 @@ spring:
           audience: https://gw.access-management.api.odp.aws.stag.visma.net
       client:
         registration:
-            visma-connect:
-                scopes: publicapi:user:create,publicapi:user:update,publicapi:user:read,publicapi:tenant:userapplicationroles:read, publicapi:tenant:userapplicationroles:update, publicapi:tenant:read, publicapi:tenant:create, publicapi:tenant:application:create,publicapi:tenant:update, publicapi:subscriptionsystem:read,publicapi:tenant:user:read,publicapi:tenant:user:update,publicapi:tenant:application:read
+          visma-connect:
+            scopes: publicapi:user:create,publicapi:user:update,publicapi:user:read,publicapi:tenant:userapplicationroles:read, publicapi:tenant:userapplicationroles:update, publicapi:tenant:read, publicapi:tenant:create, publicapi:tenant:application:create,publicapi:tenant:update, publicapi:subscriptionsystem:read,publicapi:tenant:user:read,publicapi:tenant:user:update,publicapi:tenant:application:read
         provider:
           visma-connect:
             token-uri: https://connect.identity.stagaws.visma.com/connect/token
