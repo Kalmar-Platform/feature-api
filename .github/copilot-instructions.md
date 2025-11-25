@@ -1,10 +1,10 @@
-# AI Assistant Development Guidelines: Subscription API
+# AI Assistant Development Guidelines: Feature API
 
 ## 1. Project Overview
 
-This document provides the context and operational guidelines for AI-assisted development on the Visma Kalmar Subscription API.
+This document provides the context and operational guidelines for AI-assisted development on the Visma Kalmar Feature API.
 
-The **Kalmar Subscription Management System** is an enterprise-grade, multi-tenant Spring Boot application designed for B2B subscription management across Nordic markets (Norway, Sweden, Denmark, Finland). It provides a secure, multi-market backend solution for the complete lifecycle management of customers, customer contacts, and their subscriptions.
+The **Kalmar Feature Management System** is an enterprise-grade, multi-tenant Spring Boot application designed for B2B Feature management across Nordic markets (Norway, Sweden, Denmark, Finland). It provides a secure, multi-market backend solution for the complete lifecycle management of customers, customer contacts, and their feature.
 
 The architecture is designed for a single, unified codebase to be deployed across all markets without country-specific modifications. It leverages **Clean Architecture** principles to ensure scalability, maintainability, and separation of concerns. Security is paramount, with **OAuth 2.0 (Client Credentials Flow)** and **JWT** serving as the foundation for authentication and authorization.
 
@@ -34,7 +34,7 @@ The project is built upon the following technologies:
 ## 3. Security Architecture
 
 The application's security is anchored by OAuth 2.0 and JWT, configured in:
-`external-adapters/boot/src/main/java/com/visma/api/subscription/externaladapters/boot/config/SecurityConfig.java`
+`external-adapters/boot/src/main/java/com/visma/api/feature/externaladapters/boot/config/SecurityConfig.java`
 
 Key security features include:
 * **Authentication**: OAuth 2.0 Client Credentials Flow for service-to-service communication.

@@ -1,11 +1,11 @@
 ---
 mode: 'agent'
 model: 'Claude Sonnet 4'
-description: 'Generate a new API method for Subscription API'
+description: 'Generate a new API method for Feature API'
 ---
 
 
- Your goal is to implement a new API method in the Subscription API project following the guidelines provided in the instructions files.
+ Your goal is to implement a new API method in the Feature API project following the guidelines provided in the instructions files.
  
  Following the instructions presented in #copilot-instructions.md file, plus all the other instruction files we need to implement a new api method ${input:methodName}, part of the ${input:apiName}.
  

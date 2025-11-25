@@ -27,10 +27,9 @@ public interface CustomerGateway {
 ```
 
 ### 2.1. Multi-Database Naming Convention
-When an entity exists in multiple databases (e.g., `Feature` and `Subscription`), you **must** prefix method names accordingly to avoid ambiguity.
+When an entity exists in multiple databases (e.g., `Feature` ), you **must** prefix method names accordingly to avoid ambiguity.
 
 * Methods for the `Feature` database: `findFeatureCustomerById(...)`
-* Methods for the `Subscription` database: `findSubscriptionCustomerById(...)`
 * Operations that apply to both (like `save`) can remain unprefixed.
 
 ---

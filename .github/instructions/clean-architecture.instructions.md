@@ -20,7 +20,7 @@ The solution is organized into four primary Maven modules, representing the arch
 #### Foldder & Package Structure
 
 The code is located in the `application/` folder. While modules separate layers, packages within them should be
-organized by domain concepts (e.g., `customer`, `subscription`).
+organized by domain concepts (e.g., `customer`, `feature`).
 
 ```plaintext
 feature-api/
@@ -55,7 +55,7 @@ public record Customer(UUID idCustomer, String name, String organizationNumber) 
 ### 3.2. Use Cases Layer
 
 * **Purpose:** Contains all application-specific business logic. Each use case defines a single, specific operation (
-  e.g., `CreateCustomer`, `GetSubscriptionDetails`).
+  e.g., `CreateCustomer`, `GetUserDetails`).
 * **Constraints:** This layer **must remain independent** of any frameworks, databases, or UI concerns.
 * **Guidelines:** For detailed implementation rules, refer to the *
   *[Use Case Guidelines](usecase-guidelines.instructions.md)**.

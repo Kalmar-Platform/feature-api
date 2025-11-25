@@ -2,7 +2,7 @@
 
  The project uses two Mysql relation databases to store the data:
   - `Feature` which store role assignments and user information
-  - `Subscription` which store subscription information, packages, and related entities
+  
   
  Some of the tables can be found int both databases     
 
@@ -81,190 +81,126 @@ The model for the Feature database is designed to manage user roles, contexts, a
         CREATE INDEX IX_UserRoleAssignment_IdContext ON UserRoleAssignment (IdContext);
         CREATE INDEX IX_UserRoleAssignment_IdRole ON UserRoleAssignment (IdRole);
 ```
-## Subscription Database
+## Feature Database
 
- The model for the Subscription database is designed to manage subscriptions, packages, and related entities and is defined below.
+ The model for the Feature database is designed to manage features, packages, and related entities and is defined below.
 ```sql
-   CREATE DATABASE IF NOT EXISTS subscription;
-USE subscription;
+-- --------------------------------------------------------
+-- Host:                         subscriptiondb-instance-1.c7244oq0k56a.eu-north-1.rds.amazonaws.com
+-- Server version:               8.0.39 - 8bc99e28
+-- Server OS:                    Linux
+-- HeidiSQL Version:             9.5.0.5196
+-- --------------------------------------------------------
 
-CREATE TABLE Country (
-    IdCountry CHAR(36) NOT NULL PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    Code CHAR(2) NOT NULL UNIQUE,
-	CurrencyCode char(3) NOT NULL,
-	INDEX IdxName (Name),
-	INDEX IdxCurrencyCode (CurrencyCode)
-);
-
-CREATE TABLE Context (
-    IdContext CHAR(36) NOT NULL PRIMARY KEY,
-    IdContextParent CHAR(36),
-    IdCountry CHAR(36) NOT NULL,
-    Name VARCHAR(255) NOT NULL,
-    OrganizationNumber VARCHAR(255) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-	FOREIGN KEY (IdContextParent) REFERENCES Context(IdContext),
-    FOREIGN KEY (IdCountry) REFERENCES Country(IdCountry),
-	INDEX IdxContextParent (IdContextParent),
-	INDEX IdxCountry (IdCountry)
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 
-CREATE TABLE Distributor (
-    IdDistributor CHAR(36) NOT NULL PRIMARY KEY,
-    URISubscriptionSystem VARCHAR(255) NOT NULL,
-    FOREIGN KEY (IdDistributor) REFERENCES Context(IdContext)
-);
+-- Dumping database structure for useraccess
+DROP DATABASE IF EXISTS `useraccess`;
+CREATE DATABASE IF NOT EXISTS `useraccess` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `useraccess`;
+
+-- Dumping structure for table useraccess.Context
+DROP TABLE IF EXISTS `Context`;
+CREATE TABLE IF NOT EXISTS `Context` (
+  `IdContext` char(36) NOT NULL,
+  `IdContextParent` char(36) DEFAULT NULL,
+  `IdCountry` char(36) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  `OrganizationNumber` varchar(255) NOT NULL,
+  PRIMARY KEY (`IdContext`),
+  KEY `IX_Context_IdContextParent` (`IdContextParent`),
+  KEY `IX_Context_IdCountry` (`IdCountry`),
+  CONSTRAINT `Context_ibfk_1` FOREIGN KEY (`IdContextParent`) REFERENCES `Context` (`IdContext`),
+  CONSTRAINT `Context_ibfk_2` FOREIGN KEY (`IdCountry`) REFERENCES `Country` (`IdCountry`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+-- Dumping structure for table useraccess.Country
+DROP TABLE IF EXISTS `Country`;
+CREATE TABLE IF NOT EXISTS `Country` (
+  `IdCountry` char(36) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  `Code` char(2) NOT NULL,
+  PRIMARY KEY (`IdCountry`),
+  UNIQUE KEY `Code` (`Code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+-- Dumping structure for table useraccess.Customer
+DROP TABLE IF EXISTS `Customer`;
+CREATE TABLE IF NOT EXISTS `Customer` (
+  `IdContext` char(36) NOT NULL,
+  PRIMARY KEY (`IdContext`),
+  KEY `IX_Customer_IdContext` (`IdContext`),
+  CONSTRAINT `Customer_ibfk_1` FOREIGN KEY (`IdContext`) REFERENCES `Context` (`IdContext`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+-- Dumping structure for table useraccess.Language
+DROP TABLE IF EXISTS `Language`;
+CREATE TABLE IF NOT EXISTS `Language` (
+  `IdLanguage` char(36) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  `Code` char(2) DEFAULT NULL,
+  PRIMARY KEY (`IdLanguage`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+-- Dumping structure for table useraccess.Role
+DROP TABLE IF EXISTS `Role`;
+CREATE TABLE IF NOT EXISTS `Role` (
+  `IdRole` char(36) NOT NULL,
+  `Name` varchar(255) NOT NULL,
+  `InvariantKey` varchar(50) NOT NULL,
+  `Description` text,
+  `WhenEdited` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `RecordVersion` bigint NOT NULL,
+  PRIMARY KEY (`IdRole`),
+  KEY `Role_Name` (`Name`),
+  KEY `Role_InvariantKey` (`InvariantKey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+-- Dumping structure for table useraccess.User
+DROP TABLE IF EXISTS `User`;
+CREATE TABLE IF NOT EXISTS `User` (
+  `IdUser` char(36) NOT NULL,
+  `IdLanguage` char(36) NOT NULL,
+  `Email` varchar(255) NOT NULL,
+  `FirstName` varchar(50) NOT NULL,
+  `LastName` varchar(50) NOT NULL,
+  `RecordVersion` bigint NOT NULL,
+  `WhenEdited` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`IdUser`),
+  KEY `IX_User_IdLanguage` (`IdLanguage`),
+  CONSTRAINT `User_ibfk_1` FOREIGN KEY (`IdLanguage`) REFERENCES `Language` (`IdLanguage`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+-- Dumping structure for table useraccess.UserRoleAssignment
+DROP TABLE IF EXISTS `UserRoleAssignment`;
+CREATE TABLE IF NOT EXISTS `UserRoleAssignment` (
+  `IdUserRoleAssignment` char(36) NOT NULL,
+  `IdUser` char(36) NOT NULL,
+  `IdContext` char(36) NOT NULL,
+  `IdRole` char(36) NOT NULL,
+  PRIMARY KEY (`IdUserRoleAssignment`),
+  UNIQUE KEY `IdUser` (`IdUser`,`IdContext`,`IdRole`),
+  KEY `IX_UserRoleAssignment_IdUser` (`IdUser`),
+  KEY `IX_UserRoleAssignment_IdContext` (`IdContext`),
+  KEY `IX_UserRoleAssignment_IdRole` (`IdRole`),
+  CONSTRAINT `UserRoleAssignment_ibfk_1` FOREIGN KEY (`IdUser`) REFERENCES `User` (`IdUser`),
+  CONSTRAINT `UserRoleAssignment_ibfk_2` FOREIGN KEY (`IdContext`) REFERENCES `Context` (`IdContext`),
+  CONSTRAINT `UserRoleAssignment_ibfk_3` FOREIGN KEY (`IdRole`) REFERENCES `Role` (`IdRole`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-CREATE TABLE Suite (
-    IdSuite CHAR(36) NOT NULL PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00'
-);
 
-CREATE TABLE Product (
-    IdProduct CHAR(36) NOT NULL PRIMARY KEY,
-    IdDistributor CHAR(36) NOT NULL,
-    Name VARCHAR(255) NOT NULL,
-    IsBaseNotAddOn TINYINT(1) NOT NULL DEFAULT 1,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-    FOREIGN KEY (IdDistributor) REFERENCES Distributor(IdDistributor),
-	UNIQUE (IdProduct, IdDistributor),
-	INDEX IdxBusinessUnit (IdDistributor)
-);
-
-
-CREATE TABLE SuiteProduct (
-    IdSuiteProduct CHAR(36) NOT NULL PRIMARY KEY,
-    IdSuite CHAR(36) NOT NULL,
-    IdProduct CHAR(36) NOT NULL
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-    FOREIGN KEY (IdSuite) REFERENCES Suite(IdSuite),
-    FOREIGN KEY (IdProduct) REFERENCES Product(IdProduct),
-	UNIQUE(IdSuite, IdProduct),
-	INDEX IdxSuite (IdSuite),
-	INDEX IdxProduct (IdProduct)
-);
-
-
-CREATE TABLE ProductDependency (
-    IdProductDependency CHAR(36) NOT NULL PRIMARY KEY,
-	IdDistributor CHAR(36) NOT NULL,
-	IdProduct CHAR(36) NOT NULL,
-	IdProductPrerequisite CHAR(36) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-    FOREIGN KEY (IdProduct, IdDistributor) REFERENCES Product(IdProduct, IdDistributor),
-	FOREIGN KEY (IdProductPrerequisite, IdDistributor) REFERENCES Product(IdProduct, IdDistributor),
-	UNIQUE(IdProduct, IdProductPrerequisite),
-	INDEX IdxProductBusinessUnit (IdProduct, IdDistributor),
-	INDEX IdxProductPrerequisiteBusinessUnit (IdProductPrerequisite, IdDistributor)
-);
-
-
-CREATE TABLE Role (
-    IdRole CHAR(36) NOT NULL PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00'
-);
-
-
-CREATE TABLE Feature (
-    IdFeature CHAR(36) NOT NULL PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    DisplayName VARCHAR(255) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00'
-);
-
-
-
-CREATE TABLE FeatureRole (
-    IdFeatureRole CHAR(36) NOT NULL PRIMARY KEY,
-    IdFeature CHAR(36) NOT NULL,
-    IdRole CHAR(36) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-    FOREIGN KEY (IdFeature) REFERENCES Feature(IdFeature),
-    FOREIGN KEY (IdRole) REFERENCES Role(IdRole),
-	INDEX IdxFeature (IdFeature),
-    INDEX IdxRole (IdRole)
-);
-
-
-CREATE TABLE ProductFeature (
-    IdProductFeature CHAR(36) NOT NULL PRIMARY KEY,
-    IdProduct CHAR(36) NOT NULL,
-    IdFeature CHAR(36) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-    FOREIGN KEY (IdProduct) REFERENCES Product(IdProduct),
-    FOREIGN KEY (IdFeature) REFERENCES Feature(IdFeature),
-	UNIQUE(IdProduct,IdFeature),
-	INDEX IdxProduct (IdProduct),
-	INDEX IdxFeature (IdFeature)
-);
-
-
-CREATE TABLE CountryFeature (
-    IdCountryFeature CHAR(36) NOT NULL PRIMARY KEY,
-    IdCountry CHAR(36) NOT NULL,
-    IdFeature CHAR(36) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-    FOREIGN KEY (IdCountry) REFERENCES Country(IdCountry),
-    FOREIGN KEY (IdFeature) REFERENCES Feature(IdFeature),
-	INDEX IdxCountry (IdCountry),
-	INDEX IdxFeature (IdFeature)
-);
-
-
-CREATE TABLE Customer (
-    IdCustomer CHAR(36) NOT NULL PRIMARY KEY,
-    FOREIGN KEY (IdCustomer) REFERENCES Context(IdContext)
-);
-
-CREATE TABLE Partner (
-    IdPartner CHAR(36) NOT NULL PRIMARY KEY,
-    FOREIGN KEY (IdPartner) REFERENCES Context(IdContext)
-);
-
-
-CREATE TABLE Subscription (
-    IdSubscription CHAR(36) NOT NULL PRIMARY KEY,
-    IdDistributor CHAR(36) NOT NULL,
-    IdCustomer CHAR(36) NOT NULL,
-    IdPartner CHAR(36) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-    FOREIGN KEY (IdDistributor) REFERENCES Distributor(IdDistributor),
-    FOREIGN KEY (IdCustomer) REFERENCES Customer(IdCustomer),
-    FOREIGN KEY (IdPartner) REFERENCES Partner(IdPartner),
-	UNIQUE(IdSubscription, IdDistributor),
-	INDEX IdxBusinessUnit (IdDistributor),
-	INDEX IdxCustomer (IdCustomer),
-	INDEX IdxPartner (IdPartner)
-);
-
-
-CREATE TABLE SubscriptionProduct (
-    IdSubscriptionProduct CHAR(36) NOT NULL PRIMARY KEY,
-    IdSubscription CHAR(36) NOT NULL,
-	IdDistributor CHAR(36) NOT NULL,
-    IdProduct CHAR(36) NOT NULL,
-	UserNameChangedBy VARCHAR(255),
-    WhenEdited DATETIME DEFAULT '1900-01-01 00:00:00',
-    FOREIGN KEY (IdSubscription, IdDistributor) REFERENCES Subscription(IdSubscription, IdDistributor),
-    FOREIGN KEY (IdProduct, IdDistributor) REFERENCES Product(IdProduct, IdDistributor),
-    INDEX IdxSubscriptionBusinessUnit (IdSubscription, IdDistributor),
-	INDEX IdxProductBusinessUnit (IdProduct, IdDistributor) 
 );
 ```
 ## Common Tables

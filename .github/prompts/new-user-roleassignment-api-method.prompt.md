@@ -1,10 +1,10 @@
 ---
 mode: 'agent'
 model: 'Claude Sonnet 4'
-description: 'Generate a new API method for the Role Assignment API which is part of the Subscription API project'
+description: 'Generate a new API method for the Role Assignment API which is part of the Feature API project'
 ---
 
-Your goal is to implement a new API method ${input:methodName} in the Role Assignment API of the Subscription API project following the guidelines provided in the instructions files.
+Your goal is to implement a new API method ${input:methodName} in the Role Assignment API of the Feature API project following the guidelines provided in the instructions files.
 
 When implementing the method, besides the guidelines in all the instruction files you also need to consider the particularities of the Role API :
 

@@ -5,7 +5,7 @@ description: 'Implement a call to a new user method in the Visma Connect Public 
 ---
 
  Your goal is to implement a new call to the Visma Connect Public API to manage users in the Identity Provider.
- The method should be implemented in the `VismaConnectUserGatewayAdapater` class, which is part of the `connect-adapter` package in the `interface-adapters` layer of the Subscription API project.
+ The method should be implemented in the `VismaConnectUserGatewayAdapater` class, which is part of the `connect-adapter` package in the `interface-adapters` layer of the Feature API project.
 
  The HTTP method is ${input:httpMethod} and the URL is ${input:url}.
 

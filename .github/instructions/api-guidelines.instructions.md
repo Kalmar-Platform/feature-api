@@ -17,7 +17,7 @@ Organize your API code with the following structure.
 
 * **API Interface:**
     * **Location:** `controllers` module (`interface-adapter` layer), specific package based on resource (e.g.,
-      `com.visma.api.subscription.application.interfaceadapters.controllers.customer`).
+      `com.visma.api.feature.application.interfaceadapters.controllers.customer`).
     * **Name:** Suffix with `Api` (e.g., `CustomerApi`).
     * **Annotations:**
         * `@Validated` for input validation.
