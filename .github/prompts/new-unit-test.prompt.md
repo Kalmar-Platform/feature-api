@@ -1,10 +1,10 @@
 ---
 mode: 'agent'
 model: 'Claude Sonnet 4'
-description: 'Generate unit tests for a class in the Subscription API project'
+description: 'Generate unit tests for a class in the Feature API project'
 ---
 
-Your goal is to generate unit tests for the class ${input:className} in the Subscription API project following the guidelines provided in the instructions files.
+Your goal is to generate unit tests for the class ${input:className} in the Feature API project following the guidelines provided in the instructions files.
 
 It is important that you read the unit-testing-guidelines.instructions.md file before generating the tests, and that you follow the instructions and patterns described in that file.
 

@@ -70,7 +70,7 @@ Follow these instructions to set up and run the project on your local machine.
 
 The system requires two separate MySQL databases:
 1.  **Feature Database**: Manages user accounts, roles, and permissions. It also serves as the default source for reference data (e.g., `Country`, `Language`).
-2.  **Subscription Database**: Manages customer and subscription data.
+2.  **Feature Database**: Manages customer and feature data.
 
 To create the required schemas and tables, execute the SQL scripts located in `.github/instructions/data-model.instructions.md`.
 
@@ -95,8 +95,6 @@ Variables specific to a profile are defined in profile-specific files (e.g., `ap
 | Variable                   | Description                                                               | Required |
 | -------------------------- | ------------------------------------------------------------------------- | :------: |
 | `SPRING_PROFILES_ACTIVE`   | The active Spring profile (e.g., `dev`, `int`, `stag`, `prod`).           |   Yes    |
-| `SUBSCRIPTION_DB_USERNAME` | Username for the **Subscription** database.                               |   Yes    |
-| `SUBSCRIPTION_DB_PASSWORD` | Password for the **Subscription** database.                               |   Yes    |
 | `USER_ACCESS_DB_USERNAME`  | Username for the **Feature** database.                                 |   Yes    |
 | `USER_ACCESS_DB_PASSWORD`  | Password for the **Feature** database.                                 |   Yes    |
 | `CONNECT_CLIENT_ID`        | OAuth2 Client ID for Visma Connect APIs.                                  |   Yes    |
@@ -130,8 +128,7 @@ These are grouped under the following categories:
 
     | Variable                  | Description                                 |        Required         |
     |---------------------------|---------------------------------------------|:-----------------------:|
-    | `subscription-db-url`     | JDBC URL for the **Subscription** database. |           Yes           |
-    | `user-access-db-url`      | JDBC URL for the **Feature** database.   |           Yes           |
+     | `user-access-db-url`      | JDBC URL for the **Feature** database.   |           Yes           |
     
 * **Logging Configuration** defined under `logging` section. Used for debugging on local environments. **Do not enable in `stag` or `prod` profiles!** as they generate a lot of logs and may expose sensitive data.
 

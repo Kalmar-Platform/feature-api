@@ -1,14 +1,14 @@
 ---
 mode: 'agent'
 model: 'Claude Sonnet 4'
-description: 'Generate a new API method for the Customer API which is part of the Subscription API project'
+description: 'Generate a new API method for the Customer API which is part of the Feature API project'
 ---
 
- Your goal is to implement a new API method ${input:methodName} in the Customer API of the Subscription API project following the guidelines provided in the instructions files.
+ Your goal is to implement a new API method ${input:methodName} in the Customer API of the Feature API project following the guidelines provided in the instructions files.
  
  When implementing the method, besides the guidelines in all the instruction files you also need to consider the particularities of the Customer API :
 
- - A `Customer` table exists in both the `Feature` and `Subscription` databases, so that will need to created or updated in both databases.
+ - A `Customer` table exists in both the `Feature` database, so that will need to created or updated in both databases.
  - The `Feature` database is set as the primary database for the project, so when fetching data use this database unless otherwise specified.
  - A `Customer` is a `Context`, the `Customer` table is just an id reference to the `Context` table. All Customer data is stored in the `Context` table. This relationship is defined in the `Customer` entity.
  - When searching for a `Customer` by id, you will need to search in the `Context` table, not the `Customer` table, so use the `context id`.

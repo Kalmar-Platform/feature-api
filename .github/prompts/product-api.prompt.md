@@ -11,7 +11,7 @@ Your task is to implement the API for managing Products follwoing the guidelines
  If the API doesn't exist yet, you need to create it following the guidelines in the #api-guidelines.instructions.md file.
 
  Besides the guidelines in all the instruction files you also need to consider the particularities of the Product API:
-  - The `Product` API is part of the `Subscription` database, so you will need to create or update the `Product` table in the `Subscription` database.
+  - The `Product` API is part of the `Feature` database, so you will need to create or update the `Product` table in the `Feature` database.
   - A `Product` has a name is linked to a `Business Unit`, the `IdBusinessUnit` is mandatory in the `Product` entity and must be validated
   - A `Product` also contains a list of features that are associated with it. The input contains a liist of `IdFeature` that must be validated and stored in the `ProductFeature` junction table.
   - The `InputData` and `OutputData` objects should be defined as generic as possible, so they can be re-used in other methods.

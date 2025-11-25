@@ -19,9 +19,9 @@ import org.springframework.context.annotation.Configuration;
 @OpenAPIDefinition(
         info =
         @Info(
-                title = "Subscription API",
+                title = "Feature API",
                 description =
-                        "The Subscription API allows the <b>provisioning</b> of <b>subscriptions for customers"
+                        "The Feature API allows the <b>provisioning</b> of <b>feature for customers"
                                 + "</b> . This version of the API is still in "
                                 + "development. It can suffer any changes, without any prior notice."
                                 + "<p>All calls, with the exception of <b>/api/v1/openweb/register</b>, require a Visma Connect access token. </p> "

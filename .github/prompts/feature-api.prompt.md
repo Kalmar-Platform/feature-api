@@ -33,7 +33,7 @@ Your task is to implement the specified API method. If the `Feature` API does no
 ## API Specific Requirements & Constraints
 
 ### 1. Database & Schema
--   The `Feature` entity belongs to the **`Subscription`** database.
+-   The `Feature` entity belongs to the **`Feature`** database.
 
 ### 2. Entity Logic (`Feature` and `CountryFeature`)
 -   A `Feature` must have a `name` and a `display name`.

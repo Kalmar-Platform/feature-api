@@ -10,7 +10,6 @@ The location of repository and entity files is critical for the multi-database c
 
 * **Base Module:** All repositories and their entities **must** be located in the `interface-adapters/gateways/` module.
 * **Database-Specific Packages:** The project connects to two separate databases. Repositories and their entities **must** be placed in the package matching the database they connect to:
-    * **Subscription DB:** `com.visma.subscription.kalmar.api.**`
     * **Feature DB:** `com.visma.feature.kalmar.api.**`
 
 ---
@@ -23,18 +22,18 @@ The location of repository and entity files is critical for the multi-database c
 
 #### Repository Example
 ```java
-// Located in: com.visma.subscription.kalmar.api.customer
-public interface CustomerRepository extends JpaRepository<SubscriptionCustomer, String> {
+// Located in: com.visma.feature.kalmar.api.customer
+public interface CustomerRepository extends JpaRepository<Customer, String> {
     
     // Inferred Query
     boolean existsById(String id);
 
     // Inferred Query
-    List<SubscriptionCustomer> findAllByIdContextParent(String contextId);
+    List<Customer> findAllByIdContextParent(String contextId);
 
     // Explicit JPQL Query
-    @Query("SELECT c FROM SubscriptionCustomer c WHERE c.name LIKE %:name%")
-    List<SubscriptionCustomer> findByNameContains(@Param("name") String name);
+    @Query("SELECT c FROM Customer c WHERE c.name LIKE %:name%")
+    List<Customer> findByNameContains(@Param("name") String name);
 }
 ```
 ---
