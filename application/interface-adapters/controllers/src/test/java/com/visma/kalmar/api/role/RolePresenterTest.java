@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 class RolePresenterTest {
 
     private static final String ROLE_ID = "123e4567-e89b-12d3-a456-426614174000";
@@ -164,6 +165,6 @@ class RolePresenterTest {
 
         assertNotNull(response);
         assertNotNull(response.getBody());
-        assertTrue(response.getBody() instanceof RoleResponse);
+        assertInstanceOf(RoleResponse.class, response.getBody());
     }
 }
