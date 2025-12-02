@@ -7,20 +7,22 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Context")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Context {
+public class Context implements Serializable {
 
     @Id
     @Column(name = "IdContext", columnDefinition = "CHAR(36)")
     @JdbcTypeCode(SqlTypes.CHAR)
     private UUID idContext;
+
+    @Column(name = "IdContextType", columnDefinition = "CHAR(36)")
+    @JdbcTypeCode(SqlTypes.CHAR)
+    private UUID idContextType;
 
     @Column(name = "IdContextParent", columnDefinition = "CHAR(36)")
     @JdbcTypeCode(SqlTypes.CHAR)
