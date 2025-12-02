@@ -121,7 +121,7 @@ class CustomerApiControllerTest {
 
     @Test
     void deleteCustomer_withInvalidId_throwsInvalidInputDataException() {
-        assertThrows(InvalidInputDataException.class, () -> customerApiController.deleteCustomer("invalid-uuid"));
+        assertThrows(IllegalArgumentException.class, () -> customerApiController.deleteCustomer("invalid-uuid"));
 
         verify(deleteCustomerInputPort, never()).deleteCustomer(any(), any());
     }

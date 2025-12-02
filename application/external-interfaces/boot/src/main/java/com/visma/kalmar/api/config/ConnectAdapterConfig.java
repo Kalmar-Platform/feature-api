@@ -1,5 +1,7 @@
-package com.visma.kalmar.api;
+package com.visma.kalmar.api.config;
 
+import com.visma.kalmar.api.VismaConnectConfiguration;
+import com.visma.kalmar.api.httpclient.ClientHttpConnectorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +41,7 @@ public class ConnectAdapterConfig {
         oauth2.setDefaultClientRegistrationId("visma-connect");
 
         return WebClient.builder()
+                .clientConnector(ClientHttpConnectorFactory.createDebuggableClientHttpConnector())
                 .baseUrl(vismaConnectConfiguration.publicApiEndpoint())
                 .apply(oauth2.oauth2Configuration())
                 .build();
