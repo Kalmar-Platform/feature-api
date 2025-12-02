@@ -115,7 +115,7 @@
         </jacoco.ut.file>
         <sonar.version>3.9.1.2184</sonar.version>
         <sonar.coverage.jacoco.xmlReportPaths>${jacoco.ut.file}</sonar.coverage.jacoco.xmlReportPaths>
-        <okhttp3.okhhtp.version>4.11.0</okhttp3.okhhtp.version>
+        <okhttp3.okhttp.version>4.11.0</okhttp3.okhttp.version>
         <okhttp3.mockwebserver.version>4.11.0</okhttp3.mockwebserver.version>
         <com.google.guava.guava.version>33.0.0-jre</com.google.guava.guava.version>
     </properties>
