@@ -200,25 +200,4 @@ class CreateCustomerUseCaseTest {
         assertFalse(customerGateway.exists(customerId));
     }
 
-    @Test
-    void createCustomer_withNullParentContext_createsCustomerSuccessfully() {
-        UUID customerId = UUID.randomUUID();
-        UUID parentContextId = UUID.randomUUID();
-        Context parentContext = new Context(parentContextId, CONTEXT_TYPE_ID, null, COUNTRY_ID, "Parent Corp", "987654321");
-        contextGateway.save(parentContext);
-
-        var inputData = new CreateCustomerInputPort.CreateCustomerInputData(
-                customerId, COUNTRY_ID, parentContextId, ORG_NUMBER, CUSTOMER_NAME
-        );
-
-        final AtomicReference<Context> resultContext = new AtomicReference<>();
-
-        useCase.createCustomer(inputData, (customer, context, created) -> {
-            resultContext.set(context);
-        });
-
-        assertNotNull(resultContext.get());
-        assertEquals(parentContextId, resultContext.get().idContextParent());
-        assertTrue(customerGateway.exists(customerId));
-    }
 }

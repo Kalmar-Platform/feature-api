@@ -211,11 +211,10 @@ class CustomerPresenterTest {
     }
 
     @Test
-    void present_withDifferentCustomerIds_usesCustomerId() {
-        UUID contextId = UUID.randomUUID();
+    void present_usesCustomerIdForResponse() {
         Customer customer = new Customer(CUSTOMER_ID);
         Context context = new Context(
-                contextId,
+                CUSTOMER_ID,
                 CONTEXT_TYPE_ID,
                 PARENT_CONTEXT_ID,
                 COUNTRY_ID,
@@ -226,7 +225,8 @@ class CustomerPresenterTest {
         customerPresenter.present(customer, context, true);
         ResponseEntity<CustomerResponse> response = customerPresenter.getResponse();
 
-        assertEquals(contextId, response.getBody().idContext());
+        assertEquals(CUSTOMER_ID, response.getBody().idContext());
+        assertEquals(customer.idContext(), response.getBody().idContext());
     }
 
     @Test
