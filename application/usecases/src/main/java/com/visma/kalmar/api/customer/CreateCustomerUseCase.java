@@ -78,7 +78,7 @@ public class CreateCustomerUseCase implements CreateCustomerInputPort {
     }
 
     private void validateParentContextExists(UUID idContextParent) {
-        if (idContextParent == null || !contextGateway.existsById(idContextParent)) {
+        if (idContextParent != null && !contextGateway.existsById(idContextParent)) {
             throw new ResourceNotFoundException("Context", "Parent context not found with id: " + idContextParent);
         }
     }
