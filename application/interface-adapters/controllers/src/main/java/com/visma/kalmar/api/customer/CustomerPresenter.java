@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomerPresenter implements CustomerOutputPort, DeleteCustomerOutputPort {
+public class CustomerPresenter implements CustomerOutputPort, GetCustomerOutputPort, DeleteCustomerOutputPort {
 
     private ResponseEntity<CustomerResponse> response;
     private ResponseEntity<Void> deleteResponse;
@@ -24,6 +24,11 @@ public class CustomerPresenter implements CustomerOutputPort, DeleteCustomerOutp
 
         HttpStatus status = created ? HttpStatus.CREATED : HttpStatus.OK;
         this.response = ResponseEntity.status(status).body(customerResponse);
+    }
+
+    @Override
+    public void present(Customer customer, Context context) {
+        present(customer, context, false);
     }
 
     @Override

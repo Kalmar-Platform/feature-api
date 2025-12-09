@@ -22,6 +22,7 @@ class CreateCustomerUseCaseTest {
     private static final String ORG_NUMBER = "123456789";
     private static final UUID COUNTRY_ID = UUID.randomUUID();
     private static final UUID CONTEXT_TYPE_ID = UUID.randomUUID();
+    private static final UUID DISTRIBUTOR_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
     private InMemoryCustomerGatewayAdapter customerGateway;
     private InMemoryContextGatewayAdapter contextGateway;
@@ -42,8 +43,11 @@ class CreateCustomerUseCaseTest {
     @Test
     void createCustomer_withValidData_createsCustomerSuccessfully() {
         UUID customerId = UUID.randomUUID();
+        UUID parentContextId = UUID.randomUUID();
+        Context parentContext = new Context(parentContextId, CONTEXT_TYPE_ID, null, COUNTRY_ID, "Parent Corp", "987654321");
+        contextGateway.save(parentContext);
         var inputData = new CreateCustomerInputPort.CreateCustomerInputData(
-                customerId, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME
+                customerId, COUNTRY_ID, parentContextId, ORG_NUMBER, CUSTOMER_NAME
         );
 
         final AtomicReference<Customer> resultCustomer = new AtomicReference<>();
@@ -63,7 +67,7 @@ class CreateCustomerUseCaseTest {
         assertEquals(ORG_NUMBER, resultContext.get().organizationNumber());
         assertEquals(COUNTRY_ID, resultContext.get().idCountry());
         assertEquals(CONTEXT_TYPE_ID, resultContext.get().idContextType());
-        assertNull(resultContext.get().idContextParent());
+        assertEquals(parentContextId, resultContext.get().idContextParent());
         assertTrue(resultCreated.get());
 
         assertTrue(customerGateway.exists(customerId));
@@ -108,8 +112,11 @@ class CreateCustomerUseCaseTest {
 
     @Test
     void createCustomer_withNullIdCustomer_generatesNewId() {
+        UUID parentContextId = UUID.randomUUID();
+        Context parentContext = new Context(parentContextId, CONTEXT_TYPE_ID, null, COUNTRY_ID, "Parent Corp", "987654321");
+        contextGateway.save(parentContext);
         var inputData = new CreateCustomerInputPort.CreateCustomerInputData(
-                null, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME
+                null, COUNTRY_ID, parentContextId, ORG_NUMBER, CUSTOMER_NAME
         );
 
         final AtomicReference<Customer> resultCustomer = new AtomicReference<>();
@@ -178,8 +185,11 @@ class CreateCustomerUseCaseTest {
         contextTypeGateway.clear();
 
         UUID customerId = UUID.randomUUID();
+        UUID parentContextId = UUID.randomUUID();
+        Context parentContext = new Context(parentContextId, CONTEXT_TYPE_ID, null, COUNTRY_ID, "Parent Corp", "987654321");
+        contextGateway.save(parentContext);
         var inputData = new CreateCustomerInputPort.CreateCustomerInputData(
-                customerId, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME
+                customerId, COUNTRY_ID, parentContextId, ORG_NUMBER, CUSTOMER_NAME
         );
 
         var exception = assertThrows(ResourceNotFoundException.class,
@@ -188,5 +198,27 @@ class CreateCustomerUseCaseTest {
 
         assertTrue(exception.getMessage().contains("ContextType not found"));
         assertFalse(customerGateway.exists(customerId));
+    }
+
+    @Test
+    void createCustomer_withNullParentContext_createsCustomerSuccessfully() {
+        UUID customerId = UUID.randomUUID();
+        UUID parentContextId = UUID.randomUUID();
+        Context parentContext = new Context(parentContextId, CONTEXT_TYPE_ID, null, COUNTRY_ID, "Parent Corp", "987654321");
+        contextGateway.save(parentContext);
+
+        var inputData = new CreateCustomerInputPort.CreateCustomerInputData(
+                customerId, COUNTRY_ID, parentContextId, ORG_NUMBER, CUSTOMER_NAME
+        );
+
+        final AtomicReference<Context> resultContext = new AtomicReference<>();
+
+        useCase.createCustomer(inputData, (customer, context, created) -> {
+            resultContext.set(context);
+        });
+
+        assertNotNull(resultContext.get());
+        assertEquals(parentContextId, resultContext.get().idContextParent());
+        assertTrue(customerGateway.exists(customerId));
     }
 }

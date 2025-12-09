@@ -25,6 +25,29 @@ public interface CustomerApi {
     })
     ResponseEntity<CustomerResponse> createCustomer(@RequestBody CustomerRequest request);
 
+    @GetMapping("/{idCustomer}")
+    @Operation(summary = "Get a customer by ID", description = "Retrieves a customer by their unique identifier")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Customer retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Customer not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
+    ResponseEntity<CustomerResponse> getCustomer(@PathVariable String idCustomer);
+
+    @PutMapping("/{idCustomer}")
+    @Operation(summary = "Update a customer", description = "Updates an existing customer")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Customer updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "404", description = "Customer or parent context not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
+    ResponseEntity<CustomerResponse> updateCustomer(@PathVariable String idCustomer, @RequestBody CustomerRequest request);
+
     @DeleteMapping("/{idCustomer}")
     @Operation(summary = "Delete a customer", description = "Deletes a customer by ID")
     @ApiResponses(value = {

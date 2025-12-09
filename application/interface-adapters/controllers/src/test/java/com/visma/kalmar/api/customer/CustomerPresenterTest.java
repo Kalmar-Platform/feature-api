@@ -122,6 +122,28 @@ class CustomerPresenterTest {
     }
 
     @Test
+    void present_withoutCreatedFlag_returnsHttpOk() {
+        Customer customer = new Customer(CUSTOMER_ID);
+        Context context = new Context(
+                CUSTOMER_ID,
+                CONTEXT_TYPE_ID,
+                PARENT_CONTEXT_ID,
+                COUNTRY_ID,
+                CUSTOMER_NAME,
+                ORG_NUMBER
+        );
+
+        customerPresenter.present(customer, context);
+        ResponseEntity<CustomerResponse> response = customerPresenter.getResponse();
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(CUSTOMER_ID, response.getBody().idContext());
+        assertEquals(CUSTOMER_NAME, response.getBody().name());
+    }
+
+    @Test
     void presentDeleted_returnsHttpNoContent() {
         customerPresenter.presentDeleted();
         ResponseEntity<Void> response = customerPresenter.getDeleteResponse();
@@ -151,5 +173,163 @@ class CustomerPresenterTest {
 
         assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+    }
+
+    @Test
+    void present_multipleCalls_overridesPreviousResponse() {
+        Customer customer1 = new Customer(CUSTOMER_ID);
+        Context context1 = new Context(
+                CUSTOMER_ID,
+                CONTEXT_TYPE_ID,
+                PARENT_CONTEXT_ID,
+                COUNTRY_ID,
+                CUSTOMER_NAME,
+                ORG_NUMBER
+        );
+
+        UUID customer2Id = UUID.randomUUID();
+        Customer customer2 = new Customer(customer2Id);
+        Context context2 = new Context(
+                customer2Id,
+                CONTEXT_TYPE_ID,
+                null,
+                COUNTRY_ID,
+                "Different Corp",
+                "987654321"
+        );
+
+        customerPresenter.present(customer1, context1, true);
+        customerPresenter.present(customer2, context2, false);
+
+        ResponseEntity<CustomerResponse> response = customerPresenter.getResponse();
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(customer2Id, response.getBody().idContext());
+        assertEquals("Different Corp", response.getBody().name());
+        assertEquals("987654321", response.getBody().organizationNumber());
+    }
+
+    @Test
+    void present_withDifferentCustomerIds_usesCustomerId() {
+        UUID contextId = UUID.randomUUID();
+        Customer customer = new Customer(CUSTOMER_ID);
+        Context context = new Context(
+                contextId,
+                CONTEXT_TYPE_ID,
+                PARENT_CONTEXT_ID,
+                COUNTRY_ID,
+                CUSTOMER_NAME,
+                ORG_NUMBER
+        );
+
+        customerPresenter.present(customer, context, true);
+        ResponseEntity<CustomerResponse> response = customerPresenter.getResponse();
+
+        assertEquals(contextId, response.getBody().idContext());
+    }
+
+    @Test
+    void present_responseBodyContainsAllRequiredFields() {
+        Customer customer = new Customer(CUSTOMER_ID);
+        Context context = new Context(
+                CUSTOMER_ID,
+                CONTEXT_TYPE_ID,
+                PARENT_CONTEXT_ID,
+                COUNTRY_ID,
+                CUSTOMER_NAME,
+                ORG_NUMBER
+        );
+
+        customerPresenter.present(customer, context, true);
+        ResponseEntity<CustomerResponse> response = customerPresenter.getResponse();
+
+        CustomerResponse body = response.getBody();
+        assertNotNull(body);
+        assertNotNull(body.idContext());
+        assertNotNull(body.name());
+        assertNotNull(body.organizationNumber());
+        assertNotNull(body.idCountry());
+        assertNotNull(body.idContextParent());
+    }
+
+    @Test
+    void getResponse_calledMultipleTimes_returnsSameInstance() {
+        Customer customer = new Customer(CUSTOMER_ID);
+        Context context = new Context(
+                CUSTOMER_ID,
+                CONTEXT_TYPE_ID,
+                PARENT_CONTEXT_ID,
+                COUNTRY_ID,
+                CUSTOMER_NAME,
+                ORG_NUMBER
+        );
+
+        customerPresenter.present(customer, context, true);
+        ResponseEntity<CustomerResponse> response1 = customerPresenter.getResponse();
+        ResponseEntity<CustomerResponse> response2 = customerPresenter.getResponse();
+
+        assertSame(response1, response2);
+    }
+
+    @Test
+    void getDeleteResponse_calledMultipleTimes_returnsSameInstance() {
+        customerPresenter.presentDeleted();
+        ResponseEntity<Void> response1 = customerPresenter.getDeleteResponse();
+        ResponseEntity<Void> response2 = customerPresenter.getDeleteResponse();
+
+        assertSame(response1, response2);
+    }
+
+    @Test
+    void present_withEmptyStrings_preservesEmptyValues() {
+        Customer customer = new Customer(CUSTOMER_ID);
+        Context context = new Context(
+                CUSTOMER_ID,
+                CONTEXT_TYPE_ID,
+                PARENT_CONTEXT_ID,
+                COUNTRY_ID,
+                "",
+                ""
+        );
+
+        customerPresenter.present(customer, context, true);
+        ResponseEntity<CustomerResponse> response = customerPresenter.getResponse();
+
+        CustomerResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("", body.name());
+        assertEquals("", body.organizationNumber());
+    }
+
+    @Test
+    void present_createdStatus_matchesCreatedFlag() {
+        Customer customer = new Customer(CUSTOMER_ID);
+        Context context = new Context(
+                CUSTOMER_ID,
+                CONTEXT_TYPE_ID,
+                PARENT_CONTEXT_ID,
+                COUNTRY_ID,
+                CUSTOMER_NAME,
+                ORG_NUMBER
+        );
+
+        customerPresenter.present(customer, context, true);
+        ResponseEntity<CustomerResponse> createdResponse = customerPresenter.getResponse();
+        assertEquals(HttpStatus.CREATED, createdResponse.getStatusCode());
+
+        customerPresenter.present(customer, context, false);
+        ResponseEntity<CustomerResponse> okResponse = customerPresenter.getResponse();
+        assertEquals(HttpStatus.OK, okResponse.getStatusCode());
+    }
+
+    @Test
+    void presentDeleted_noContentStatus_hasNoBody() {
+        customerPresenter.presentDeleted();
+        ResponseEntity<Void> response = customerPresenter.getDeleteResponse();
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+        assertFalse(response.hasBody());
     }
 }

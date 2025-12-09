@@ -28,6 +28,12 @@ class CustomerApiControllerTest {
     private CreateCustomerInputPort createCustomerInputPort;
 
     @Mock
+    private GetCustomerInputPort getCustomerInputPort;
+
+    @Mock
+    private UpdateCustomerInputPort updateCustomerInputPort;
+
+    @Mock
     private DeleteCustomerInputPort deleteCustomerInputPort;
 
     @Mock
@@ -40,6 +46,8 @@ class CustomerApiControllerTest {
         MockitoAnnotations.initMocks(this);
         customerApiController = new CustomerApiController(
                 createCustomerInputPort,
+                getCustomerInputPort,
+                updateCustomerInputPort,
                 deleteCustomerInputPort,
                 customerPresenter
         );
@@ -94,13 +102,117 @@ class CustomerApiControllerTest {
 
     @Test
     void createCustomer_callsPresenterToGetResponse() {
-        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, PARENT_CONTEXT_ID, ORG_NUMBER, CUSTOMER_NAME);
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.status(HttpStatus.CREATED).body(
-                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, null));
+                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID));
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
 
         customerApiController.createCustomer(request);
+
+        verify(customerPresenter, times(1)).getResponse();
+    }
+
+    @Test
+    void getCustomer_withValidId_success() {
+        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID);
+        ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(expectedResponse);
+
+        when(customerPresenter.getResponse()).thenReturn(expectedEntity);
+
+        ResponseEntity<CustomerResponse> response = customerApiController.getCustomer(CUSTOMER_ID.toString());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedResponse, response.getBody());
+
+        verify(getCustomerInputPort, times(1)).getCustomer(eq(CUSTOMER_ID), eq(customerPresenter));
+    }
+
+    @Test
+    void getCustomer_withInvalidId_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> customerApiController.getCustomer("invalid-uuid"));
+
+        verify(getCustomerInputPort, never()).getCustomer(any(), any());
+    }
+
+    @Test
+    void getCustomer_callsPresenterToGetResponse() {
+        ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(
+                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID));
+
+        when(customerPresenter.getResponse()).thenReturn(expectedEntity);
+
+        customerApiController.getCustomer(CUSTOMER_ID.toString());
+
+        verify(customerPresenter, times(1)).getResponse();
+    }
+
+    @Test
+    void updateCustomer_withValidData_success() {
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, PARENT_CONTEXT_ID, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID);
+        ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(expectedResponse);
+
+        when(customerPresenter.getResponse()).thenReturn(expectedEntity);
+
+        ResponseEntity<CustomerResponse> response = customerApiController.updateCustomer(CUSTOMER_ID.toString(), request);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedResponse, response.getBody());
+
+        ArgumentCaptor<UpdateCustomerInputPort.UpdateCustomerInputData> inputDataCaptor =
+                ArgumentCaptor.forClass(UpdateCustomerInputPort.UpdateCustomerInputData.class);
+        verify(updateCustomerInputPort, times(1)).updateCustomer(inputDataCaptor.capture(), eq(customerPresenter));
+
+        UpdateCustomerInputPort.UpdateCustomerInputData capturedInputData = inputDataCaptor.getValue();
+        assertEquals(CUSTOMER_ID, capturedInputData.idCustomer());
+        assertEquals(COUNTRY_ID, capturedInputData.idCountry());
+        assertEquals(PARENT_CONTEXT_ID, capturedInputData.idContextParent());
+        assertEquals(ORG_NUMBER, capturedInputData.organizationNumber());
+        assertEquals(CUSTOMER_NAME, capturedInputData.name());
+    }
+
+    @Test
+    void updateCustomer_withNullParentContext_success() {
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, null);
+        ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(expectedResponse);
+
+        when(customerPresenter.getResponse()).thenReturn(expectedEntity);
+
+        ResponseEntity<CustomerResponse> response = customerApiController.updateCustomer(CUSTOMER_ID.toString(), request);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        ArgumentCaptor<UpdateCustomerInputPort.UpdateCustomerInputData> inputDataCaptor =
+                ArgumentCaptor.forClass(UpdateCustomerInputPort.UpdateCustomerInputData.class);
+        verify(updateCustomerInputPort, times(1)).updateCustomer(inputDataCaptor.capture(), eq(customerPresenter));
+
+        UpdateCustomerInputPort.UpdateCustomerInputData capturedInputData = inputDataCaptor.getValue();
+        assertNull(capturedInputData.idContextParent());
+    }
+
+    @Test
+    void updateCustomer_withInvalidId_throwsIllegalArgumentException() {
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME);
+
+        assertThrows(IllegalArgumentException.class, () -> customerApiController.updateCustomer("invalid-uuid", request));
+
+        verify(updateCustomerInputPort, never()).updateCustomer(any(), any());
+    }
+
+    @Test
+    void updateCustomer_callsPresenterToGetResponse() {
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME);
+        ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(
+                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, null));
+
+        when(customerPresenter.getResponse()).thenReturn(expectedEntity);
+
+        customerApiController.updateCustomer(CUSTOMER_ID.toString(), request);
 
         verify(customerPresenter, times(1)).getResponse();
     }

@@ -10,6 +10,10 @@ import com.visma.kalmar.api.customer.CreateCustomerUseCase;
 import com.visma.kalmar.api.customer.CustomerGateway;
 import com.visma.kalmar.api.customer.DeleteCustomerInputPort;
 import com.visma.kalmar.api.customer.DeleteCustomerUseCase;
+import com.visma.kalmar.api.customer.GetCustomerInputPort;
+import com.visma.kalmar.api.customer.GetCustomerUseCase;
+import com.visma.kalmar.api.customer.UpdateCustomerInputPort;
+import com.visma.kalmar.api.customer.UpdateCustomerUseCase;
 import com.visma.feature.kalmar.api.context.ContextRepository;
 import com.visma.feature.kalmar.api.contexttype.ContextTypeRepository;
 import com.visma.feature.kalmar.api.customer.CustomerRepository;
@@ -40,6 +44,20 @@ public class CustomerConfig {
             ContextGateway contextGateway,
             ContextTypeGateway contextTypeGateway) {
         return new CreateCustomerUseCase(customerGateway, contextGateway, contextTypeGateway);
+    }
+
+    @Bean
+    public GetCustomerInputPort getCustomerInputPort(
+            CustomerGateway customerGateway,
+            ContextGateway contextGateway) {
+        return new GetCustomerUseCase(customerGateway, contextGateway);
+    }
+
+    @Bean
+    public UpdateCustomerInputPort updateCustomerInputPort(
+            CustomerGateway customerGateway,
+            ContextGateway contextGateway) {
+        return new UpdateCustomerUseCase(customerGateway, contextGateway);
     }
 
     @Bean

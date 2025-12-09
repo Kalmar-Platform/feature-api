@@ -45,17 +45,13 @@ public class CreateCustomerUseCase implements CreateCustomerInputPort {
                 inputData.name(),
                 inputData.organizationNumber()
         );
-
-        //to be removed var savedContext = contextGateway.save(context);
-
-
         var savedCustomer = customerGateway.save(context);
 
         outputPort.present(savedCustomer, context, true);
     }
 
     private void validateParentContextExists(UUID idContextParent) {
-        if (idContextParent != null && !contextGateway.existsById(idContextParent)) {
+        if (idContextParent == null || !contextGateway.existsById(idContextParent)) {
             throw new ResourceNotFoundException("Context", "Parent context not found with id: " + idContextParent);
         }
     }
