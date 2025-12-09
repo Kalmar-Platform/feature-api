@@ -6,8 +6,8 @@ spring:
 
   # Common configuration for all profiles
   datasource:
-    username: ${USER_ACCESS_DB_USERNAME}
-    password: ${USER_ACCESS_DB_PASSWORD}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: software.aws.rds.jdbc.mysql.Driver
     hikari:
       maximum-pool-size: 5

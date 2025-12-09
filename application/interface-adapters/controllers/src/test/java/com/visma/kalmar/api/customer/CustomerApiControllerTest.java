@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 class CustomerApiControllerTest {
 
     private static final UUID CUSTOMER_ID = UUID.randomUUID();
-    private static final UUID COUNTRY_ID = UUID.randomUUID();
+    private static final String COUNTRY_CODE = "NO";
     private static final UUID PARENT_CONTEXT_ID = UUID.randomUUID();
     private static final String CUSTOMER_NAME = "Acme Corporation";
     private static final String ORG_NUMBER = "123456789";
@@ -55,8 +55,8 @@ class CustomerApiControllerTest {
 
     @Test
     void createCustomer_withValidData_success() {
-        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, PARENT_CONTEXT_ID, ORG_NUMBER, CUSTOMER_NAME);
-        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID);
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_CODE, PARENT_CONTEXT_ID, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_CODE, PARENT_CONTEXT_ID);
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse);
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
@@ -73,7 +73,7 @@ class CustomerApiControllerTest {
 
         CreateCustomerInputPort.CreateCustomerInputData capturedInputData = inputDataCaptor.getValue();
         assertEquals(CUSTOMER_ID, capturedInputData.idCustomer());
-        assertEquals(COUNTRY_ID, capturedInputData.idCountry());
+        assertEquals(COUNTRY_CODE, capturedInputData.countryCode());
         assertEquals(PARENT_CONTEXT_ID, capturedInputData.idContextParent());
         assertEquals(ORG_NUMBER, capturedInputData.organizationNumber());
         assertEquals(CUSTOMER_NAME, capturedInputData.name());
@@ -81,8 +81,8 @@ class CustomerApiControllerTest {
 
     @Test
     void createCustomer_withNullParentContext_success() {
-        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME);
-        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, null);
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_CODE, null, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_CODE, null);
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.status(HttpStatus.CREATED).body(expectedResponse);
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
@@ -102,9 +102,9 @@ class CustomerApiControllerTest {
 
     @Test
     void createCustomer_callsPresenterToGetResponse() {
-        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, PARENT_CONTEXT_ID, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_CODE, PARENT_CONTEXT_ID, ORG_NUMBER, CUSTOMER_NAME);
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.status(HttpStatus.CREATED).body(
-                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID));
+                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_CODE, PARENT_CONTEXT_ID));
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
 
@@ -115,7 +115,7 @@ class CustomerApiControllerTest {
 
     @Test
     void getCustomer_withValidId_success() {
-        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID);
+        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_CODE, PARENT_CONTEXT_ID);
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(expectedResponse);
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
@@ -139,7 +139,7 @@ class CustomerApiControllerTest {
     @Test
     void getCustomer_callsPresenterToGetResponse() {
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(
-                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID));
+                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_CODE, PARENT_CONTEXT_ID));
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
 
@@ -150,8 +150,8 @@ class CustomerApiControllerTest {
 
     @Test
     void updateCustomer_withValidData_success() {
-        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, PARENT_CONTEXT_ID, ORG_NUMBER, CUSTOMER_NAME);
-        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, PARENT_CONTEXT_ID);
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_CODE, PARENT_CONTEXT_ID, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_CODE, PARENT_CONTEXT_ID);
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(expectedResponse);
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
@@ -168,7 +168,7 @@ class CustomerApiControllerTest {
 
         UpdateCustomerInputPort.UpdateCustomerInputData capturedInputData = inputDataCaptor.getValue();
         assertEquals(CUSTOMER_ID, capturedInputData.idCustomer());
-        assertEquals(COUNTRY_ID, capturedInputData.idCountry());
+        assertEquals(COUNTRY_CODE, capturedInputData.countryCode());
         assertEquals(PARENT_CONTEXT_ID, capturedInputData.idContextParent());
         assertEquals(ORG_NUMBER, capturedInputData.organizationNumber());
         assertEquals(CUSTOMER_NAME, capturedInputData.name());
@@ -176,8 +176,8 @@ class CustomerApiControllerTest {
 
     @Test
     void updateCustomer_withNullParentContext_success() {
-        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME);
-        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, null);
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_CODE, null, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerResponse expectedResponse = new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_CODE, null);
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(expectedResponse);
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
@@ -197,7 +197,7 @@ class CustomerApiControllerTest {
 
     @Test
     void updateCustomer_withInvalidId_throwsIllegalArgumentException() {
-        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_CODE, null, ORG_NUMBER, CUSTOMER_NAME);
 
         assertThrows(IllegalArgumentException.class, () -> customerApiController.updateCustomer("invalid-uuid", request));
 
@@ -206,9 +206,9 @@ class CustomerApiControllerTest {
 
     @Test
     void updateCustomer_callsPresenterToGetResponse() {
-        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_ID, null, ORG_NUMBER, CUSTOMER_NAME);
+        CustomerRequest request = new CustomerRequest(CUSTOMER_ID, COUNTRY_CODE, null, ORG_NUMBER, CUSTOMER_NAME);
         ResponseEntity<CustomerResponse> expectedEntity = ResponseEntity.ok(
-                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_ID, null));
+                new CustomerResponse(CUSTOMER_ID, CUSTOMER_NAME, ORG_NUMBER, COUNTRY_CODE, null));
 
         when(customerPresenter.getResponse()).thenReturn(expectedEntity);
 

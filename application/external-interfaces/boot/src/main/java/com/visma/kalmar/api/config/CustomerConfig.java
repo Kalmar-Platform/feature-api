@@ -2,9 +2,11 @@ package com.visma.kalmar.api.config;
 
 import com.visma.kalmar.api.adapters.context.ContextGatewayAdapter;
 import com.visma.kalmar.api.adapters.contexttype.ContextTypeGatewayAdapter;
+import com.visma.kalmar.api.adapters.country.CountryGatewayAdapter;
 import com.visma.kalmar.api.adapters.customer.CustomerGatewayAdapter;
 import com.visma.kalmar.api.context.ContextGateway;
 import com.visma.kalmar.api.contexttype.ContextTypeGateway;
+import com.visma.kalmar.api.country.CountryGateway;
 import com.visma.kalmar.api.customer.CreateCustomerInputPort;
 import com.visma.kalmar.api.customer.CreateCustomerUseCase;
 import com.visma.kalmar.api.customer.CustomerGateway;
@@ -16,6 +18,7 @@ import com.visma.kalmar.api.customer.UpdateCustomerInputPort;
 import com.visma.kalmar.api.customer.UpdateCustomerUseCase;
 import com.visma.feature.kalmar.api.context.ContextRepository;
 import com.visma.feature.kalmar.api.contexttype.ContextTypeRepository;
+import com.visma.feature.kalmar.api.country.CountryRepository;
 import com.visma.feature.kalmar.api.customer.CustomerRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +37,11 @@ public class CustomerConfig {
     }
 
     @Bean
+    public CountryGateway countryGateway(CountryRepository countryRepository) {
+        return new CountryGatewayAdapter(countryRepository);
+    }
+
+    @Bean
     public CustomerGateway customerGateway(CustomerRepository customerRepository) {
         return new CustomerGatewayAdapter(customerRepository);
     }
@@ -42,8 +50,9 @@ public class CustomerConfig {
     public CreateCustomerInputPort createCustomerInputPort(
             CustomerGateway customerGateway,
             ContextGateway contextGateway,
-            ContextTypeGateway contextTypeGateway) {
-        return new CreateCustomerUseCase(customerGateway, contextGateway, contextTypeGateway);
+            ContextTypeGateway contextTypeGateway,
+            CountryGateway countryGateway) {
+        return new CreateCustomerUseCase(customerGateway, contextGateway, contextTypeGateway, countryGateway);
     }
 
     @Bean
@@ -56,8 +65,9 @@ public class CustomerConfig {
     @Bean
     public UpdateCustomerInputPort updateCustomerInputPort(
             CustomerGateway customerGateway,
-            ContextGateway contextGateway) {
-        return new UpdateCustomerUseCase(customerGateway, contextGateway);
+            ContextGateway contextGateway,
+            CountryGateway countryGateway) {
+        return new UpdateCustomerUseCase(customerGateway, contextGateway, countryGateway);
     }
 
     @Bean

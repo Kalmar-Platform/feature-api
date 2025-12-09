@@ -20,7 +20,7 @@ public class InMemoryCustomerGatewayAdapter implements CustomerGateway {
     public Customer findById(UUID idCustomer) {
         Context context = customers.get(idCustomer);
         if (context == null) {
-            throw new com.visma.kalmar.api.exception.ResourceNotFoundException("Customer", "Customer not found with id: " + idCustomer);
+            return null;
         }
         return new Customer(context.idContext());
     }

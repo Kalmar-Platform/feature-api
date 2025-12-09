@@ -1,6 +1,8 @@
 package com.visma.kalmar.api.customer;
 
+import com.visma.kalmar.api.country.CountryGateway;
 import com.visma.kalmar.api.entities.context.Context;
+import com.visma.kalmar.api.entities.country.Country;
 import com.visma.kalmar.api.entities.customer.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class CustomerPresenterTest {
 
@@ -17,14 +20,20 @@ class CustomerPresenterTest {
     private static final UUID CONTEXT_TYPE_ID = UUID.randomUUID();
     private static final UUID PARENT_CONTEXT_ID = UUID.randomUUID();
     private static final UUID COUNTRY_ID = UUID.randomUUID();
+    private static final String COUNTRY_CODE = "NO";
     private static final String CUSTOMER_NAME = "Acme Corporation";
     private static final String ORG_NUMBER = "123456789";
 
     private CustomerPresenter customerPresenter;
+    private CountryGateway countryGateway;
 
     @BeforeEach
     void setUp() {
-        customerPresenter = new CustomerPresenter();
+        countryGateway = mock(CountryGateway.class);
+        customerPresenter = new CustomerPresenter(countryGateway);
+        
+        Country norway = new Country(COUNTRY_ID, "Norway", COUNTRY_CODE);
+        when(countryGateway.findById(COUNTRY_ID)).thenReturn(norway);
     }
 
     @Test
@@ -48,7 +57,7 @@ class CustomerPresenterTest {
         assertEquals(CUSTOMER_ID, response.getBody().idContext());
         assertEquals(CUSTOMER_NAME, response.getBody().name());
         assertEquals(ORG_NUMBER, response.getBody().organizationNumber());
-        assertEquals(COUNTRY_ID, response.getBody().idCountry());
+        assertEquals(COUNTRY_CODE, response.getBody().countryCode());
         assertEquals(PARENT_CONTEXT_ID, response.getBody().idContextParent());
     }
 
@@ -92,7 +101,7 @@ class CustomerPresenterTest {
         assertNotNull(customerResponse);
         assertEquals(CUSTOMER_ID, customerResponse.idContext());
         assertNull(customerResponse.idContextParent());
-        assertEquals(COUNTRY_ID, customerResponse.idCountry());
+        assertEquals(COUNTRY_CODE, customerResponse.countryCode());
         assertEquals(CUSTOMER_NAME, customerResponse.name());
         assertEquals(ORG_NUMBER, customerResponse.organizationNumber());
     }
@@ -116,7 +125,7 @@ class CustomerPresenterTest {
         assertNotNull(customerResponse);
         assertEquals(context.idContext(), customerResponse.idContext());
         assertEquals(context.idContextParent(), customerResponse.idContextParent());
-        assertEquals(context.idCountry(), customerResponse.idCountry());
+        assertEquals(COUNTRY_CODE, customerResponse.countryCode());
         assertEquals(context.name(), customerResponse.name());
         assertEquals(context.organizationNumber(), customerResponse.organizationNumber());
     }
@@ -249,7 +258,7 @@ class CustomerPresenterTest {
         assertNotNull(body.idContext());
         assertNotNull(body.name());
         assertNotNull(body.organizationNumber());
-        assertNotNull(body.idCountry());
+        assertNotNull(body.countryCode());
         assertNotNull(body.idContextParent());
     }
 

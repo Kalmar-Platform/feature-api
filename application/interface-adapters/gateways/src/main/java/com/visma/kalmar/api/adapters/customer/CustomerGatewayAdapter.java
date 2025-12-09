@@ -26,7 +26,11 @@ public class CustomerGatewayAdapter implements CustomerGateway {
     @Override
     public Customer findById(UUID idCustomer) {
         var jpaEntity = customerRepository.findById(idCustomer)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer", "Customer not found with id: " + idCustomer));
+                .orElse(null);
+        
+        if (jpaEntity == null) {
+            return null;
+        }
         
         return toDomainEntity(jpaEntity);
     }

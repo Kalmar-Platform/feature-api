@@ -31,7 +31,7 @@ public class CustomerApiController implements CustomerApi {
     public ResponseEntity<CustomerResponse> createCustomer(CustomerRequest request) {
         var inputData = new CreateCustomerInputPort.CreateCustomerInputData(
                 request.idContext(),
-                request.idCountry(),
+                request.countryCode(),
                 request.idContextParent(),
                 request.organizationNumber(),
                 request.name()
@@ -57,7 +57,7 @@ public class CustomerApiController implements CustomerApi {
         
         var inputData = new UpdateCustomerInputPort.UpdateCustomerInputData(
                 customerId,
-                request.idCountry(),
+                request.countryCode(),
                 request.idContextParent(),
                 request.organizationNumber(),
                 request.name()

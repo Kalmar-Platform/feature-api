@@ -97,14 +97,12 @@ class CustomerGatewayAdapterTest {
     }
 
     @Test
-    void findById_customerNotFound_throwsResourceNotFoundException() {
+    void findById_customerNotFound_returnsNull() {
         when(customerRepository.findById(CUSTOMER_ID)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> customerGatewayAdapter.findById(CUSTOMER_ID));
+        Customer result = customerGatewayAdapter.findById(CUSTOMER_ID);
 
-        assertTrue(exception.getMessage().contains("Customer not found"));
-        assertTrue(exception.getMessage().contains(CUSTOMER_ID.toString()));
+        assertNull(result);
         verify(customerRepository, times(1)).findById(CUSTOMER_ID);
     }
 

@@ -12,7 +12,7 @@ public interface CreateCustomerInputPort {
 
     record CreateCustomerInputData(
             UUID idCustomer,
-            UUID idCountry,
+            String countryCode,
             UUID idContextParent,
             String organizationNumber,
             String name
@@ -20,9 +20,6 @@ public interface CreateCustomerInputPort {
         public CreateCustomerInputData {
             if (idCustomer == null) {
                 idCustomer = UUID.randomUUID();
-            }
-            if (idCountry == null) {
-                throw new InvalidInputDataException("Customer", "idCountry is mandatory");
             }
             if (organizationNumber == null || organizationNumber.isBlank()) {
                 throw new InvalidInputDataException("Customer", "organizationNumber is mandatory");

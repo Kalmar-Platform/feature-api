@@ -19,9 +19,9 @@ public record CustomerResponse(
         @JsonProperty("organizationNumber")
         String organizationNumber,
 
-        @Schema(description = "Country ID", example = "223e4567-e89b-12d3-a456-426614174000")
-        @JsonProperty("idCountry")
-        UUID idCountry,
+        @Schema(description = "Country code (ISO 2-letter code)", example = "NO")
+        @JsonProperty("countryCode")
+        String countryCode,
 
         @Schema(description = "Parent context ID", example = "323e4567-e89b-12d3-a456-426614174000")
         @JsonProperty("idContextParent")

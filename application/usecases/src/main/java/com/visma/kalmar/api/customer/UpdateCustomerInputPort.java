@@ -10,7 +10,7 @@ public interface UpdateCustomerInputPort {
 
     record UpdateCustomerInputData(
             UUID idCustomer,
-            UUID idCountry,
+            String countryCode,
             UUID idContextParent,
             String organizationNumber,
             String name
@@ -18,9 +18,6 @@ public interface UpdateCustomerInputPort {
         public UpdateCustomerInputData {
             if (idCustomer == null) {
                 throw new InvalidInputDataException("Customer", "idCustomer is mandatory for update operation");
-            }
-            if (idCountry == null) {
-                throw new InvalidInputDataException("Customer", "idCountry is mandatory");
             }
             if (organizationNumber == null || organizationNumber.isBlank()) {
                 throw new InvalidInputDataException("Customer", "organizationNumber is mandatory");

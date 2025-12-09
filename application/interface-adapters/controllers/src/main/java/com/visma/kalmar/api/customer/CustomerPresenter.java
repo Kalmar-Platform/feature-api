@@ -1,5 +1,6 @@
 package com.visma.kalmar.api.customer;
 
+import com.visma.kalmar.api.country.CountryGateway;
 import com.visma.kalmar.api.entities.context.Context;
 import com.visma.kalmar.api.entities.customer.Customer;
 import org.springframework.http.HttpStatus;
@@ -9,16 +10,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomerPresenter implements CustomerOutputPort, GetCustomerOutputPort, DeleteCustomerOutputPort {
 
+    private final CountryGateway countryGateway;
     private ResponseEntity<CustomerResponse> response;
     private ResponseEntity<Void> deleteResponse;
 
+    public CustomerPresenter(CountryGateway countryGateway) {
+        this.countryGateway = countryGateway;
+    }
+
     @Override
     public void present(Customer customer, Context context, boolean created) {
+        var country = countryGateway.findById(context.idCountry());
+        
         var customerResponse = new CustomerResponse(
                 customer.idContext(),
                 context.name(),
                 context.organizationNumber(),
-                context.idCountry(),
+                country.code(),
                 context.idContextParent()
         );
 

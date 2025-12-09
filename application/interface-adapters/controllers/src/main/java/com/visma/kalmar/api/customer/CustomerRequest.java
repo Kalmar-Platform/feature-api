@@ -11,9 +11,9 @@ public record CustomerRequest(
         @JsonProperty("idContext")
         UUID idContext,
 
-        @Schema(description = "Country ID", example = "223e4567-e89b-12d3-a456-426614174000", required = true)
-        @JsonProperty("idCountry")
-        UUID idCountry,
+        @Schema(description = "Country code (ISO 2-letter code). Optional - if not provided, uses parent context's country", example = "NO", required = false)
+        @JsonProperty("countryCode")
+        String countryCode,
 
         @Schema(description = "Parent context ID", example = "323e4567-e89b-12d3-a456-426614174000", required = true)
         @JsonProperty("idContextParent")
